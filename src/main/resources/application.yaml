@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: demo
+
+  datasource:
+    url: jdbc:sqlserver://localhost:1433;databaseName=DB_Gestion;encrypt=false;trustServerCertificate=true
+    username: sa
+    password: 1234
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8088
+          public-key-location: classpath:certs/public.pem
+
+db-legacy:
+  datasource:
+    url: jdbc:sqlserver://localhost:1433;databaseName=DB_Asesores_Legacy;encrypt=false;trustServerCertificate=true
+    username: sa
+    password: 1234
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+
+server:
+  port: 8081
