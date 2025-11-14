@@ -2,10 +2,12 @@ package com.example.demo.domain.repository.command;
 
 import com.example.demo.domain.entities.Asesores;
 
+import java.util.List;
+
 
 public interface AsesorRepositoryCommand {
 
 
-    Asesores save (Asesores asesor);
+    void saveAll(List<Asesores> asesores);
 
 }

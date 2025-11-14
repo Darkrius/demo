@@ -6,7 +6,7 @@ import com.example.demo.infraestructure.persistence.entities.AsesoresEntity;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
-public interface AsesorMapper {
+public interface AsesorInternoMapper {
 
     Asesores toDomain(AsesoresEntity asesoresEntity);
 

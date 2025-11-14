@@ -2,16 +2,18 @@ package com.example.demo.api.controller;
 
 
 import com.example.demo.api.dto.AsesorSimpleResponseDto;
+import com.example.demo.api.dto.EnriquecerAsesorRequestDto;
 import com.example.demo.api.mapper.AsesorApiMapper;
+import com.example.demo.api.mapper.AsesorMapperApi;
 import com.example.demo.application.dto.PaginacionResponseDto;
+import com.example.demo.application.interfaces.asesores.EnriquecerAsesorCommand;
+import com.example.demo.application.interfaces.asesores.EnriquecerAsesorUseCase;
 import com.example.demo.application.interfaces.asesores.ListarAsesorUseCase;
 import com.example.demo.domain.entities.AsesorExterno;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -21,10 +23,14 @@ public class AsesorController {
 
     private final AsesorApiMapper apiMapper;
     private final ListarAsesorUseCase asesorUseCase;
+    private final AsesorMapperApi asesorMapperApi;
+    private final EnriquecerAsesorUseCase enriquecerAsesorUseCase;
 
-    public AsesorController(AsesorApiMapper apiMapper, ListarAsesorUseCase asesorUseCase) {
+    public AsesorController(AsesorApiMapper apiMapper, ListarAsesorUseCase asesorUseCase, AsesorMapperApi asesorMapperApi, EnriquecerAsesorUseCase enriquecerAsesorUseCase) {
         this.apiMapper = apiMapper;
         this.asesorUseCase = asesorUseCase;
+        this.asesorMapperApi = asesorMapperApi;
+        this.enriquecerAsesorUseCase = enriquecerAsesorUseCase;
     }
 
 
@@ -42,5 +48,13 @@ public class AsesorController {
         List<AsesorSimpleResponseDto> contenidoSimple =
                 apiMapper.toSimpleDtoList(paginaCruda.content());
         return ResponseEntity.ok(apiMapper.toSimplePaginacionDto(paginaCruda));
+    }
+
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+    @PostMapping
+    public ResponseEntity<Void> enriquecerAsesor(@RequestBody EnriquecerAsesorRequestDto requestDto) {
+        EnriquecerAsesorCommand command = asesorMapperApi.toCommand(requestDto);
+        enriquecerAsesorUseCase.execute(command);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

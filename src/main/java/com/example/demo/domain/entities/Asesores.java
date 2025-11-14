@@ -10,25 +10,36 @@ public class Asesores {
 
     private String apellidos;
 
-    private String tipoReferido = "HIPOTECARIO";
+    private String correoCorporativo;
 
-    private boolean estado = true;
+    private String tipoReferido;
+
+    private boolean estado;
 
     private LocalDateTime fechaUltimaAsignacion = LocalDateTime.now();
 
-    private String correoCorporativo;
+    private Long idUbigeo;
 
     public Asesores() {
     }
 
-    public Asesores(String idAsesor, String nombres, String apellidos, String tipoReferido, boolean estado, LocalDateTime fechaUltimaAsignacion, String correoCorporativo) {
+    public Asesores(String idAsesor, String nombres, String apellidos, String correoCorporativo, String tipoReferido, boolean estado, LocalDateTime fechaUltimaAsignacion, Long idUbigeo) {
         this.idAsesor = idAsesor;
         this.nombres = nombres;
         this.apellidos = apellidos;
+        this.correoCorporativo = correoCorporativo;
         this.tipoReferido = tipoReferido;
         this.estado = estado;
         this.fechaUltimaAsignacion = fechaUltimaAsignacion;
-        this.correoCorporativo = correoCorporativo;
+        this.idUbigeo = idUbigeo;
+    }
+
+    public Long getIdUbigeo() {
+        return idUbigeo;
+    }
+
+    public void setIdUbigeo(Long idUbigeo) {
+        this.idUbigeo = idUbigeo;
     }
 
     public String getIdAsesor() {
@@ -55,6 +66,14 @@ public class Asesores {
         this.apellidos = apellidos;
     }
 
+    public String getCorreoCorporativo() {
+        return correoCorporativo;
+    }
+
+    public void setCorreoCorporativo(String correoCorporativo) {
+        this.correoCorporativo = correoCorporativo;
+    }
+
     public String getTipoReferido() {
         return tipoReferido;
     }
@@ -78,20 +97,4 @@ public class Asesores {
     public void setFechaUltimaAsignacion(LocalDateTime fechaUltimaAsignacion) {
         this.fechaUltimaAsignacion = fechaUltimaAsignacion;
     }
-
-    public String getcorreoCorporativo() {
-        return correoCorporativo;
-    }
-
-    public void setcorreoCorporativo(String correoCorporativo) {
-        this.correoCorporativo = correoCorporativo;
-    }
-
-    public void eliminarAsesor(){
-        if (!estado){
-            throw new RuntimeException("Este asesor ya fue eliminado");
-        } this.estado = false;
-    }
-
-
 }

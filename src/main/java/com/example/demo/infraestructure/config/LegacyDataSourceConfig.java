@@ -29,5 +29,20 @@ public class LegacyDataSourceConfig {
         return new JdbcTemplate(dataSource);
     }
 
+    @Bean
+    @ConfigurationProperties(prefix = "spring.datasource")
+    public DataSourceProperties mainDataSourceProperties() {
+        return new DataSourceProperties();
+    }
+
+    @Bean(name = "mainDataSource")
+    public DataSource mainDataSource(@Qualifier("mainDataSourceProperties") DataSourceProperties properties) {
+        return properties.initializeDataSourceBuilder().build();
+    }
+
+    @Bean(name = "jdbcTemplate")
+    public JdbcTemplate jdbcTemplate(@Qualifier("mainDataSource") DataSource dataSource) {
+        return new JdbcTemplate(dataSource);
+    }
 
 }
