@@ -2,7 +2,7 @@ package com.example.demo.application.service;
 
 
 import com.example.demo.application.dto.PaginacionResponseDto;
-import com.example.demo.application.service.AsesorListService;
+import com.example.demo.application.service.asesor.AsesorListService;
 import com.example.demo.domain.entities.AsesorExterno;
 import com.example.demo.domain.repository.query.AsesorRepositoryQuery;
 import org.junit.jupiter.api.Test;

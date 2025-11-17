@@ -12,6 +12,9 @@ public class StoredProcedureConstants {
     public static final String SP_BUSCAR_RUC_INMOBILIARIA = "sp_get_inmobiliaria_by_ruc";
     public static final String SP_CONTAR_INMOBILIARIA= "sp_count_inmobiliarias_by_admin";
     public static final String SP_LISTAR_INMOBILIARIA= "sp_listar_dashboard_inmobiliarias";
+    public static final String SP_CONTAR_PROMOTORES = "";
+    public static final String SP_LISTAR_PROMOTORES = "";
+
 
 
 

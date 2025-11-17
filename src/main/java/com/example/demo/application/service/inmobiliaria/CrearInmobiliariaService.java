@@ -1,4 +1,4 @@
-package com.example.demo.application.service;
+package com.example.demo.application.service.inmobiliaria;
 
 import com.example.demo.application.interfaces.asesores.inmobiliaria.CrearInmobiliariaUseCase;
 import com.example.demo.application.interfaces.asesores.inmobiliaria.CreateInmobiliariaCommand;

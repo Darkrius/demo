@@ -1,4 +1,4 @@
-package com.example.demo.application.service;
+package com.example.demo.application.service.asesor;
 
 import com.example.demo.application.dto.PaginacionResponseDto;
 import com.example.demo.application.interfaces.asesores.ListarAsesorUseCase;

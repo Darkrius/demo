@@ -1,4 +1,4 @@
-package com.example.demo.application.service;
+package com.example.demo.application.service.inmobiliaria;
 
 import com.example.demo.application.interfaces.asesores.inmobiliaria.BuscarInmobiliariaPorUseCase;
 import com.example.demo.domain.entities.Inmobiliarias;

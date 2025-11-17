@@ -28,7 +28,7 @@ public class InmobiliariaRepositoryImple implements InmobiliariaRepository {
     private final InmobiliariaMapper inmobiliariaMapper;
     private final SimpleJdbcCall crearCall;
     private final SimpleJdbcCall buscarPorRucCall;
-    private final SimpleJdbcCall contarPorAdminCall; // <-- Campo nuevo
+    private final SimpleJdbcCall contarPorAdminCall;
     private final SimpleJdbcCall listarPorAdminCall;
 
     public InmobiliariaRepositoryImple(
