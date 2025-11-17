@@ -28,7 +28,7 @@
 	</scm>
 	<properties>
 		<java.version>21</java.version>
-        <spring-cloud.version>2024.0.0</spring-cloud.version>
+        <spring-cloud.version>2025.0.0</spring-cloud.version>
         <mockito.version>5.11.0</mockito.version>
     </properties>
     <dependencies>
@@ -65,6 +65,10 @@
             <artifactId>byte-buddy-agent</artifactId>
             <version>1.17.8</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
         </dependency>
         <!-- SQL Server -->
         <dependency>

@@ -14,6 +14,9 @@ public class StoredProcedureConstants {
     public static final String SP_LISTAR_INMOBILIARIA= "sp_listar_dashboard_inmobiliarias";
     public static final String SP_CONTAR_PROMOTORES = "";
     public static final String SP_LISTAR_PROMOTORES = "";
+    public static final String SP_ASIGNAR_PROYECTOS_PROMOTORES = "";
+
+
 
 
 
