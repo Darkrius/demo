@@ -25,6 +25,7 @@ public class AsesorExternoRepositoryImpl implements AsesorRepositoryQuery {
     private final SimpleJdbcCall listarCall;
     private final SimpleJdbcCall contarCall;
 
+
     public AsesorExternoRepositoryImpl(
             AsesorExternoMapper mapper,
             @Qualifier("legacyJdbcTemplate") JdbcTemplate legacyJdbcTemplate
@@ -72,7 +73,6 @@ public class AsesorExternoRepositoryImpl implements AsesorRepositoryQuery {
         Map<String, Object> params = new HashMap<>();
         params.put("nombre", nombre);
         params.put("ciudad", ciudad);
-        // ¡Usa la llamada pre-configurada!
         Map<String, Object> resultado = this.contarCall.execute(params);
 
         List<Long> totalList = (List<Long>) resultado.get("totalItems");

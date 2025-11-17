@@ -1,11 +1,10 @@
 package com.example.demo.application.interfaces.asesores.inmobiliaria;
 
-import com.example.demo.domain.entities.Inmobiliarias;
-
-import java.util.List;
+import com.example.demo.application.dto.PaginacionResponseDto;
+import com.example.demo.domain.repository.DashBoardInmobiliaria;
 
 public interface ListarInmobiliariaUseCase {
 
 
-    List<Inmobiliarias> listarPorAdmin(String idAdminCreador, int page, int size);
+    PaginacionResponseDto<DashBoardInmobiliaria> listarPorAdmin(String idAdminCreador, int page, int size);
 }

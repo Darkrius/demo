@@ -3,9 +3,12 @@ package com.example.demo.api.controller;
 import com.example.demo.api.dto.CrearInmobiliariaRequest;
 import com.example.demo.api.dto.InmobiliariaResponse;
 import com.example.demo.api.mapper.InmobiliariaMapperApi;
+import com.example.demo.application.dto.PaginacionResponseDto;
 import com.example.demo.application.interfaces.asesores.inmobiliaria.CrearInmobiliariaUseCase;
 import com.example.demo.application.interfaces.asesores.inmobiliaria.CreateInmobiliariaCommand;
+import com.example.demo.application.interfaces.asesores.inmobiliaria.ListarInmobiliariaUseCase;
 import com.example.demo.domain.entities.Inmobiliarias;
+import com.example.demo.domain.repository.DashBoardInmobiliaria;
 import com.example.demo.domain.repository.SunatPort;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -13,22 +16,24 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/inmobiliarias")
 public class InmobiliariaController {
 
     private final CrearInmobiliariaUseCase crearInmobiliariaUseCase;
+    private final ListarInmobiliariaUseCase listarInmobiliariaUseCase;
     private final InmobiliariaMapperApi inmobiliariaMapperApi;
     private final SunatPort sunatPort;
 
 
-    public InmobiliariaController(CrearInmobiliariaUseCase crearInmobiliariaUseCase, InmobiliariaMapperApi inmobiliariaMapperApi, SunatPort sunatPort) {
+    public InmobiliariaController(CrearInmobiliariaUseCase crearInmobiliariaUseCase, ListarInmobiliariaUseCase listarInmobiliariaUseCase, InmobiliariaMapperApi inmobiliariaMapperApi, SunatPort sunatPort) {
         this.crearInmobiliariaUseCase = crearInmobiliariaUseCase;
+        this.listarInmobiliariaUseCase = listarInmobiliariaUseCase;
         this.inmobiliariaMapperApi = inmobiliariaMapperApi;
         this.sunatPort = sunatPort;
     }
@@ -49,4 +54,25 @@ public class InmobiliariaController {
         InmobiliariaResponse responseDto = inmobiliariaMapperApi.toResponseDto(inmobiliariaGuardada, nProyectos);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
     }
+
+
+    @GetMapping
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+    public ResponseEntity<PaginacionResponseDto<InmobiliariaResponse>> listarInmobiliarias(
+            @AuthenticationPrincipal Jwt jwt,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size
+    ){
+        String idAdminCreador = jwt.getSubject();
+        int finalSize = Math.min(size, 10);
+
+        PaginacionResponseDto<DashBoardInmobiliaria> paginaDomain =
+                listarInmobiliariaUseCase.listarPorAdmin(idAdminCreador, page, finalSize);
+
+        PaginacionResponseDto<InmobiliariaResponse> response =
+                inmobiliariaMapperApi.toPagedResponse(paginaDomain);
+
+        return ResponseEntity.ok(response);
+    }
+
 }

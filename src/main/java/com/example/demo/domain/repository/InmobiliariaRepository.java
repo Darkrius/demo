@@ -15,7 +15,7 @@ public interface InmobiliariaRepository {
 
     Optional<Inmobiliarias> buscarPorId(Long idInmobiliaria);
 
-    List<Inmobiliarias> listarPorAdmin(String idAdminCreador    , int page, int size);
+    List<DashBoardInmobiliaria> listarPorAdmin(String idAdminCreador    , int page, int size);
 
     Optional<Inmobiliarias> actualizar(Inmobiliarias inmobiliaria);
 

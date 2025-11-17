@@ -1,11 +1,14 @@
 package com.example.demo.infraestructure.persistence.repositorys;
 
 import com.example.demo.domain.entities.Inmobiliarias;
+import com.example.demo.domain.repository.DashBoardInmobiliaria;
 import com.example.demo.domain.repository.InmobiliariaRepository;
 import com.example.demo.infraestructure.persistence.constants.StoredProcedureConstants;
+import com.example.demo.infraestructure.persistence.entities.AsesorExternoEntity;
 import com.example.demo.infraestructure.persistence.entities.InmobiliariasEntity;
 import com.example.demo.infraestructure.persistence.mapper.InmobiliariaMapper;
 import com.example.demo.infraestructure.persistence.mapper.RowMapperInmobiliaria;
+import com.example.demo.infraestructure.persistence.mapper.RowMapperInmobiliariaDash;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.SqlParameter;
@@ -25,7 +28,8 @@ public class InmobiliariaRepositoryImple implements InmobiliariaRepository {
     private final InmobiliariaMapper inmobiliariaMapper;
     private final SimpleJdbcCall crearCall;
     private final SimpleJdbcCall buscarPorRucCall;
-
+    private final SimpleJdbcCall contarPorAdminCall; // <-- Campo nuevo
+    private final SimpleJdbcCall listarPorAdminCall;
 
     public InmobiliariaRepositoryImple(
             @Qualifier("jdbcTemplate") JdbcTemplate jdbcTemplate,
@@ -52,6 +56,18 @@ public class InmobiliariaRepositoryImple implements InmobiliariaRepository {
                 .declareParameters(new SqlParameter("ruc", Types.VARCHAR))
                 .returningResultSet("inmobiliaria", new RowMapperInmobiliaria());
 
+        this.contarPorAdminCall = new SimpleJdbcCall(jdbcTemplate)
+                .withProcedureName(StoredProcedureConstants.SP_CONTAR_INMOBILIARIA)
+                .declareParameters(new SqlParameter("idAdminCreador", Types.VARCHAR))
+                .returningResultSet("totalItems", (rs, rowNum) -> rs.getLong("totalItems"));
+        this.listarPorAdminCall = new SimpleJdbcCall(jdbcTemplate)
+                .withProcedureName(StoredProcedureConstants.SP_LISTAR_INMOBILIARIA)
+                .declareParameters(
+                        new SqlParameter("@idAdminCreador", Types.VARCHAR),
+                        new SqlParameter("PageNumber", Types.INTEGER),
+                        new SqlParameter("PageSize", Types.INTEGER)
+                ).returningResultSet("inmobiliarias", new RowMapperInmobiliariaDash());
+
     }
 
 
@@ -68,7 +84,6 @@ public class InmobiliariaRepositoryImple implements InmobiliariaRepository {
         params.put("fechaModificacion", entity.getFechaModificacion());
         params.put("idAdminCreador", entity.getIdAdminCreador());
 
-        // 3. Ejecutar el SP 'crearCall'
         Map<String, Object> result = this.crearCall.execute(params);
 
         @SuppressWarnings("unchecked") // (Suprime la advertencia inevitable)
@@ -101,7 +116,12 @@ public class InmobiliariaRepositoryImple implements InmobiliariaRepository {
 
     @Override
     public long contarPorAdmin(String idAdminCreador) {
-        return 0;
+        Map<String, Object> params = new HashMap<>();
+        params.put("idAdminCreador", idAdminCreador);
+        Map<String, Object> resultado = this.contarPorAdminCall.execute(params);
+
+        List<Long> totalList = (List<Long>) resultado.get("totalItems");
+        return totalList == null || totalList.isEmpty() ? 0 : totalList.get(0);
     }
 
     @Override
@@ -110,8 +130,16 @@ public class InmobiliariaRepositoryImple implements InmobiliariaRepository {
     }
 
     @Override
-    public List<Inmobiliarias> listarPorAdmin(String idAdminCreador, int page, int size) {
-        return List.of();
+    public List<DashBoardInmobiliaria> listarPorAdmin(String idAdminCreador, int page, int size) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("idAdminCreador", idAdminCreador);
+        params.put("PageNumber", page);
+        params.put("PageSize", size);
+
+        Map<String, Object> resultado = this.listarPorAdminCall.execute(params);
+
+        List<DashBoardInmobiliaria> entidadList = (List<DashBoardInmobiliaria>) resultado.get("inmobiliarias");
+        return entidadList;
     }
 
     @Override
