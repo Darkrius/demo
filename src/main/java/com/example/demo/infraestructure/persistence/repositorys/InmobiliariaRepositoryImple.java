@@ -7,10 +7,12 @@ import com.example.demo.infraestructure.persistence.constants.StoredProcedureCon
 import com.example.demo.infraestructure.persistence.entities.AsesorExternoEntity;
 import com.example.demo.infraestructure.persistence.entities.InmobiliariasEntity;
 import com.example.demo.infraestructure.persistence.mapper.InmobiliariaMapper;
+import com.example.demo.infraestructure.persistence.mapper.RowMapperClientInmobiliaria;
 import com.example.demo.infraestructure.persistence.mapper.RowMapperInmobiliaria;
 import com.example.demo.infraestructure.persistence.mapper.RowMapperInmobiliariaDash;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.SqlOutParameter;
 import org.springframework.jdbc.core.SqlParameter;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
@@ -30,13 +32,22 @@ public class InmobiliariaRepositoryImple implements InmobiliariaRepository {
     private final SimpleJdbcCall buscarPorRucCall;
     private final SimpleJdbcCall contarPorAdminCall;
     private final SimpleJdbcCall listarPorAdminCall;
+    private final SimpleJdbcCall inmobiliariasPoraDMIN;
+    private final SimpleJdbcCall existInmobiliaria;
+
+
 
     public InmobiliariaRepositoryImple(
             @Qualifier("jdbcTemplate") JdbcTemplate jdbcTemplate,
             InmobiliariaMapper inmobiliariaMapper
     ) {
         this.inmobiliariaMapper = inmobiliariaMapper;
-
+        this.existInmobiliaria = new SimpleJdbcCall(jdbcTemplate)
+                .withProcedureName(StoredProcedureConstants.SP_EXISTE_INMOBILIARIA)
+                .declareParameters(
+                        new SqlParameter("idInmobiliaria", Types.BIGINT),
+                        new SqlOutParameter("exist", Types.BIT)
+                );
         this.crearCall = new SimpleJdbcCall(jdbcTemplate)
                 .withProcedureName(StoredProcedureConstants.SP_CREAR_Inmobiliarias)
                 .withSchemaName("dbo")
@@ -63,11 +74,15 @@ public class InmobiliariaRepositoryImple implements InmobiliariaRepository {
         this.listarPorAdminCall = new SimpleJdbcCall(jdbcTemplate)
                 .withProcedureName(StoredProcedureConstants.SP_LISTAR_INMOBILIARIA)
                 .declareParameters(
-                        new SqlParameter("@idAdminCreador", Types.VARCHAR),
+                        new SqlParameter("idAdminCreador", Types.VARCHAR),
                         new SqlParameter("PageNumber", Types.INTEGER),
                         new SqlParameter("PageSize", Types.INTEGER)
                 ).returningResultSet("inmobiliarias", new RowMapperInmobiliariaDash());
-
+        this.inmobiliariasPoraDMIN = new SimpleJdbcCall(jdbcTemplate)
+                .withProcedureName(StoredProcedureConstants.SP_BUSCAR_INMOBILIARIA_CLIENTE)
+                .declareParameters(
+                        new SqlParameter("idAdminCreador", Types.VARCHAR)
+                        ).returningResultSet("inmobiliarias", new RowMapperClientInmobiliaria());
     }
 
 
@@ -124,10 +139,16 @@ public class InmobiliariaRepositoryImple implements InmobiliariaRepository {
         return totalList == null || totalList.isEmpty() ? 0 : totalList.get(0);
     }
 
+
     @Override
-    public Optional<Inmobiliarias> buscarPorId(Long idInmobiliaria) {
-        return Optional.empty();
+    public boolean existePorId(Long idInmobiliaria) {
+        Map<String, Object> params = Map.of("idInmobiliaria", idInmobiliaria);
+        Map<String, Object> result = this.existInmobiliaria.execute(params);
+        Boolean existe = (Boolean) result.get("existe");
+        return existe != null && existe;
     }
+
+
 
     @Override
     public List<DashBoardInmobiliaria> listarPorAdmin(String idAdminCreador, int page, int size) {
@@ -145,5 +166,16 @@ public class InmobiliariaRepositoryImple implements InmobiliariaRepository {
     @Override
     public Optional<Inmobiliarias> actualizar(Inmobiliarias inmobiliaria) {
         return Optional.empty();
+    }
+
+
+    @Override
+    public List<Inmobiliarias> listarInmobiliariasClient(String idAdminCreador) {
+        Map<String, Object> params = Map.of("idAdminCreador", idAdminCreador);
+        Map<String, Object> result = this.inmobiliariasPoraDMIN.execute(params);
+        @SuppressWarnings("unchecked")
+        List<InmobiliariasEntity> entities = (List<InmobiliariasEntity>) result.get("inmobiliarias");
+        return entities.stream().map(inmobiliariaMapper::toDomain).toList();
+
     }
 }

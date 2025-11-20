@@ -3,7 +3,10 @@ package com.example.demo.infraestructure.message;
 import com.example.demo.application.event.PromotorCreateEvent;
 import com.example.demo.domain.repository.PromotorCreate;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.stereotype.Service;
 
+
+@Service
 public class RabbitNotification implements PromotorCreate {
 
 

@@ -16,7 +16,7 @@ public class RowMapperPromotor implements RowMapper<PromotorEntity> {
         Timestamp fm = rs.getTimestamp("fechaModificacion");
 
         return PromotorEntity.builder()
-                .idPromotor(rs.getLong("idPromotor"))
+                .idUsuario(rs.getLong("idUsuario"))
                 .nombres(rs.getString("nombres"))
                 .apellidos(rs.getString("apellidos"))
                 .doi(rs.getString("doi"))

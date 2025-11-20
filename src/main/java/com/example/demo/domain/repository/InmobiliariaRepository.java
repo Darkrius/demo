@@ -13,10 +13,12 @@ public interface InmobiliariaRepository {
 
     long contarPorAdmin (String idAdminCreador);
 
-    Optional<Inmobiliarias> buscarPorId(Long idInmobiliaria);
+    boolean existePorId(Long idInmobiliaria);
 
     List<DashBoardInmobiliaria> listarPorAdmin(String idAdminCreador, int page, int size);
 
     Optional<Inmobiliarias> actualizar(Inmobiliarias inmobiliaria);
+
+    List<Inmobiliarias> listarInmobiliariasClient(String idAdminCreador);
 
 }

@@ -1,8 +1,8 @@
-package com.example.demo.application.interfaces.asesores.promotor;
+package com.example.demo.api.dto;
 
 import java.util.List;
 
-public record CrearPromotorCommand(
+public record CrearPromotorRequest(
         String nombres,
         String apellidos,
         String doi,

@@ -1,8 +1,7 @@
 package com.example.demo.infraestructure.persistence.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -19,7 +18,9 @@ import java.time.LocalDateTime;
 public class PromotorEntity {
 
 
-    private Long idPromotor;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long idUsuario;
     private String nombres;
     private String apellidos;
     private String doi;

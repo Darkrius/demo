@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 
 public class Promotor {
 
-    private Long idPromotor;
+    private Long idUsuario;
     private String nombres;
     private String apellidos;
     private String doi;
@@ -18,8 +18,8 @@ public class Promotor {
     public Promotor() {
     }
 
-    public Promotor(Long idPromotor, String nombres, String apellidos, String doi, String correo, Long idInmobiliaria, String idAdminEncargado, boolean estado, LocalDateTime fechaCreacion, LocalDateTime fechaModificacion) {
-        this.idPromotor = idPromotor;
+    public Promotor(Long idUsuario, String nombres, String apellidos, String doi, String correo, Long idInmobiliaria, String idAdminEncargado, boolean estado, LocalDateTime fechaCreacion, LocalDateTime fechaModificacion) {
+        this.idUsuario = idUsuario;
         this.nombres = nombres;
         this.apellidos = apellidos;
         this.doi = doi;
@@ -31,12 +31,12 @@ public class Promotor {
         this.fechaModificacion = fechaModificacion;
     }
 
-    public Long getIdPromotor() {
-        return idPromotor;
+    public Long getIdUsuario() {
+        return idUsuario;
     }
 
-    public void setIdPromotor(Long idPromotor) {
-        this.idPromotor = idPromotor;
+    public void setIdUsuario(Long idUsuario) {
+        this.idUsuario = idUsuario;
     }
 
     public String getNombres() {
@@ -55,20 +55,20 @@ public class Promotor {
         this.apellidos = apellidos;
     }
 
-    public String getCorreo() {
-        return correo;
-    }
-
-    public void setCorreo(String correo) {
-        this.correo = correo;
-    }
-
     public String getDoi() {
         return doi;
     }
 
     public void setDoi(String doi) {
         this.doi = doi;
+    }
+
+    public String getCorreo() {
+        return correo;
+    }
+
+    public void setCorreo(String correo) {
+        this.correo = correo;
     }
 
     public Long getIdInmobiliaria() {
@@ -87,20 +87,20 @@ public class Promotor {
         this.idAdminEncargado = idAdminEncargado;
     }
 
-    public LocalDateTime getFechaCreacion() {
-        return fechaCreacion;
-    }
-
-    public void setFechaCreacion(LocalDateTime fechaCreacion) {
-        this.fechaCreacion = fechaCreacion;
-    }
-
     public boolean isEstado() {
         return estado;
     }
 
     public void setEstado(boolean estado) {
         this.estado = estado;
+    }
+
+    public LocalDateTime getFechaCreacion() {
+        return fechaCreacion;
+    }
+
+    public void setFechaCreacion(LocalDateTime fechaCreacion) {
+        this.fechaCreacion = fechaCreacion;
     }
 
     public LocalDateTime getFechaModificacion() {
@@ -111,25 +111,23 @@ public class Promotor {
         this.fechaModificacion = fechaModificacion;
     }
 
-    public void eliminarPromotor(){
-        if (!estado){
-            throw new RuntimeException("No se puede eliminar un promotor que no esta activo");
-        }this.estado = false;
+    public void eliminar() {
+        if (!estado) {
+            throw new IllegalStateException("No se puede eliminar un promotor ya inactivo.");
+        }
+        this.estado = false;
+        actualizarFechaModificacion();
     }
 
-    public void actualizarFechaModificacion(){
+    public void actualizarFechaModificacion() {
         this.fechaModificacion = LocalDateTime.now();
     }
 
-    public void correoUnico(){
-        if (this.idPromotor != null){
-            throw new RuntimeException("El correo ya existe");
+
+    private void validarEmail(String correo) {
+        if (correo == null || !correo.contains("@") || !correo.contains(".")) {
+            throw new IllegalArgumentException("Correo inválido");
         }
     }
 
-    public void doiUnico(){
-        if (this.doi != null){
-            throw new RuntimeException("El doi ya existe");
-        }
-    }
 }

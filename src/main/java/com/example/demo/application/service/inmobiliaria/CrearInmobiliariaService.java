@@ -33,6 +33,9 @@ public class CrearInmobiliariaService implements CrearInmobiliariaUseCase {
     @Override
     public Inmobiliarias crearInmobiliaria(CreateInmobiliariaCommand command, String idAdminCreador) {
 
+        String razonSocial = sunatPort.obtenerRazonSocialPorRuc(command.ruc())
+                .orElseThrow(() -> new RuntimeException("El RUC " + command.ruc() + " no existe en SUNAT."));
+
         if (inmobiliariaRepository.buscarPorRUc(command.ruc()).isPresent()) {
             throw new IllegalArgumentException("Ya existe una inmobiliaria con RUC: " + command.ruc());
         }

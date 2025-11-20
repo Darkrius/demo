@@ -6,6 +6,7 @@ import com.example.demo.infraestructure.persistence.constants.StoredProcedureCon
 import com.example.demo.infraestructure.persistence.entities.ProyectosEntity;
 import com.example.demo.infraestructure.persistence.mapper.ProyectoMapper;
 import com.example.demo.infraestructure.persistence.mapper.RowMapperProyecto;
+import com.example.demo.infraestructure.persistence.mapper.RowMapperProyectoLookup;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -26,6 +27,8 @@ public class ProyectoRepostoryImple implements ProyectoRepository {
     private final ProyectoMapper proyectoMapper;
     private final ObjectMapper objectMapper;
     private final SimpleJdbcCall saveCall;
+    private final SimpleJdbcCall buscarProyecto;
+
 
     public ProyectoRepostoryImple(
             @Qualifier("jdbcTemplate")JdbcTemplate jdbcTemplate,
@@ -43,7 +46,12 @@ public class ProyectoRepostoryImple implements ProyectoRepository {
                         new SqlParameter("proyectosJSON", Types.NVARCHAR)
                 )
                 .returningResultSet("proyectos", new RowMapperProyecto());
-
+        this.buscarProyecto = new SimpleJdbcCall(jdbcTemplate)
+                .withProcedureName(StoredProcedureConstants.SP_BUSCAR_PROYECTO_iNMOBILIARIA)
+                .declareParameters(
+                        new SqlParameter("idInmobiliaria", Types.BIGINT)
+                )
+                .returningResultSet("proyectos", new RowMapperProyectoLookup());
     }
 
 
@@ -84,5 +92,16 @@ public class ProyectoRepostoryImple implements ProyectoRepository {
     @Override
     public Optional<Proyecto> buscarPorId(Long idProyecto) {
         return Optional.empty();
+    }
+
+    @Override
+    public List<Proyecto> getProyectosLookupByInmobiliaria(Long idInmobiliaria) {
+        Map<String, Object> params = Map.of(
+                "idInmobiliaria", idInmobiliaria);
+        Map<String, Object> result = buscarProyecto.execute(params);
+
+        @SuppressWarnings("unchecked")
+        List<ProyectosEntity> entityList = (List<ProyectosEntity>) result.get("proyectos");
+        return proyectoMapper.toDomainList(entityList);
     }
 }

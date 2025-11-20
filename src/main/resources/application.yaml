@@ -22,5 +22,15 @@ db-legacy:
     password: 1234
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
 
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    exchanges:
+      - name: buscame_events_exchange
+        type: topic
+        durable: true
+
 server:
   port: 8081

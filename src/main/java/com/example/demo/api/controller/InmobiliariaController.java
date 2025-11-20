@@ -1,12 +1,14 @@
 package com.example.demo.api.controller;
 
 import com.example.demo.api.dto.CrearInmobiliariaRequest;
+import com.example.demo.api.dto.InmobiliariaLookupDtoResponse;
 import com.example.demo.api.dto.InmobiliariaResponse;
 import com.example.demo.api.mapper.InmobiliariaMapperApi;
 import com.example.demo.application.dto.PaginacionResponseDto;
 import com.example.demo.application.interfaces.asesores.inmobiliaria.CrearInmobiliariaUseCase;
 import com.example.demo.application.interfaces.asesores.inmobiliaria.CreateInmobiliariaCommand;
 import com.example.demo.application.interfaces.asesores.inmobiliaria.ListarInmobiliariaUseCase;
+import com.example.demo.application.interfaces.asesores.inmobiliaria.ListarInmobiliariasClientUseCase;
 import com.example.demo.domain.entities.Inmobiliarias;
 import com.example.demo.domain.repository.DashBoardInmobiliaria;
 import com.example.demo.domain.repository.SunatPort;
@@ -29,13 +31,15 @@ public class InmobiliariaController {
     private final ListarInmobiliariaUseCase listarInmobiliariaUseCase;
     private final InmobiliariaMapperApi inmobiliariaMapperApi;
     private final SunatPort sunatPort;
+    private final ListarInmobiliariasClientUseCase listarInmobiliariasClientUseCase;
 
 
-    public InmobiliariaController(CrearInmobiliariaUseCase crearInmobiliariaUseCase, ListarInmobiliariaUseCase listarInmobiliariaUseCase, InmobiliariaMapperApi inmobiliariaMapperApi, SunatPort sunatPort) {
+    public InmobiliariaController(CrearInmobiliariaUseCase crearInmobiliariaUseCase, ListarInmobiliariaUseCase listarInmobiliariaUseCase, InmobiliariaMapperApi inmobiliariaMapperApi, SunatPort sunatPort, ListarInmobiliariasClientUseCase listarInmobiliariasClientUseCase) {
         this.crearInmobiliariaUseCase = crearInmobiliariaUseCase;
         this.listarInmobiliariaUseCase = listarInmobiliariaUseCase;
         this.inmobiliariaMapperApi = inmobiliariaMapperApi;
         this.sunatPort = sunatPort;
+        this.listarInmobiliariasClientUseCase = listarInmobiliariasClientUseCase;
     }
 
 
@@ -73,6 +77,19 @@ public class InmobiliariaController {
                 inmobiliariaMapperApi.toPagedResponse(paginaDomain);
 
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/client")
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+    public ResponseEntity<List<InmobiliariaLookupDtoResponse>> listarInmobiliariasClient(
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        String idAdminCreador = jwt.getSubject();
+        List<Inmobiliarias> inmobiliarias = listarInmobiliariasClientUseCase.execute(idAdminCreador);
+        List<InmobiliariaLookupDtoResponse> dtos = inmobiliarias.stream()
+                .map(inmobiliariaMapperApi::toDto)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(dtos);
     }
 
 }

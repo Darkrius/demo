@@ -25,13 +25,13 @@ public class ProyectoPromotorRepositoryImpl implements ProyectoPromotorRepositor
         this.saveCall = new SimpleJdbcCall(jdbcTemplate)
                 .withProcedureName(StoredProcedureConstants.SP_ASIGNAR_PROYECTOS_PROMOTORES)
                 .declareParameters(
-                        new SqlParameter("idPromotor", Types.BIGINT),
+                        new SqlParameter("idUsuario", Types.BIGINT),
                         new SqlParameter("proyectosJSON", Types.NVARCHAR)
                 );
     }
 
     @Override
-    public void asginarPromotor(Long idPromotor, List<Long> idProyectos) {
+    public void asginarPromotor(Long idUsuario, List<Long> idProyectos) {
         if (idProyectos == null || idProyectos.isEmpty()) {
             return;
         }
@@ -45,7 +45,7 @@ public class ProyectoPromotorRepositoryImpl implements ProyectoPromotorRepositor
             throw new RuntimeException("Error fatal convirtiendo la lista de proyectos a JSON", e);
         }
         Map<String, Object> params = Map.of(
-                "idPromotor", idPromotor,
+                "idUsuario", idUsuario,
                 "proyectosJSON", proyectosJSON
         );
         saveCall.execute(params);

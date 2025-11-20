@@ -6,5 +6,5 @@ import java.util.Optional;
 
 public interface BuscarInmobiliariaIdUseCase {
 
-    Optional<Promotor> buscarPorIdPromotor(Long idPromotor);
+    Optional<Promotor> buscarPorIdPromotor(Long idUsuario);
 }

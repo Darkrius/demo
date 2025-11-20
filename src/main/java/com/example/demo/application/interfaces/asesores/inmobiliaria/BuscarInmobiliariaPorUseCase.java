@@ -6,5 +6,6 @@ import java.util.Optional;
 
 public interface BuscarInmobiliariaPorUseCase {
 
-    Optional<Inmobiliarias> buscarPorId(Long idInmobiliaria);
+    boolean existePorId(Long idInmobiliaria);
+
 }

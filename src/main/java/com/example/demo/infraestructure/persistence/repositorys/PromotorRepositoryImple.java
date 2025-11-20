@@ -7,6 +7,7 @@ import com.example.demo.infraestructure.persistence.entities.AsesorExternoEntity
 import com.example.demo.infraestructure.persistence.entities.PromotorEntity;
 import com.example.demo.infraestructure.persistence.mapper.PromotorMapper;
 import com.example.demo.infraestructure.persistence.mapper.RowMapperInmobiliariaDash;
+import com.example.demo.infraestructure.persistence.mapper.RowMapperPromotor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.SqlParameter;
@@ -29,17 +30,27 @@ public class PromotorRepositoryImple implements PromotorRepository {
     private final SimpleJdbcCall saveCall;
     private final SimpleJdbcCall contarCall;
     private final SimpleJdbcCall listarCall;
+    private final SimpleJdbcCall findByIdCall;
 
 
-
-
-
-    //implementar los sp y la logica para crar aun nose si esta bien o no xd.
 
 
     public PromotorRepositoryImple(PromotorMapper promotorMapper, @Qualifier("jdbcTemplate") JdbcTemplate jdbcTemplate) {
         this.promotorMapper = promotorMapper;
-        this.saveCall = new SimpleJdbcCall(jdbcTemplate);
+        this.saveCall = new SimpleJdbcCall(jdbcTemplate)
+                .withProcedureName(StoredProcedureConstants.SP_CREAR_PROMOTOR)
+                .declareParameters(
+                        new SqlParameter("nombres", Types.VARCHAR),
+                        new SqlParameter("apellidos", Types.VARCHAR),
+                        new SqlParameter("doi", Types.VARCHAR),
+                        new SqlParameter("correo", Types.VARCHAR),
+                        new SqlParameter("idInmobiliaria", Types.BIGINT),
+                        new SqlParameter("idAdminEncargado", Types.VARCHAR),
+                        new SqlParameter("estado", Types.BIT),
+                        new SqlParameter("fechaCreacion", Types.TIMESTAMP),
+                        new SqlParameter("fechaModificacion", Types.TIMESTAMP)
+                )
+                .returningResultSet("promotor", new RowMapperPromotor());
         this.contarCall = new SimpleJdbcCall(jdbcTemplate)
                 .withProcedureName(StoredProcedureConstants.SP_CONTAR_PROMOTORES)
                 .declareParameters(new SqlParameter("idAdminCreador", Types.VARCHAR))
@@ -47,21 +58,53 @@ public class PromotorRepositoryImple implements PromotorRepository {
         this.listarCall = new SimpleJdbcCall(jdbcTemplate)
                 .withProcedureName(StoredProcedureConstants.SP_LISTAR_PROMOTORES)
                 .declareParameters(
-                        new SqlParameter("@idAdminCreador", Types.VARCHAR),
+                        new SqlParameter("idAdminCreador", Types.VARCHAR),
                         new SqlParameter("PageNumber", Types.INTEGER),
                         new SqlParameter("PageSize", Types.INTEGER)
-                ).returningResultSet("promotores", new RowMapperInmobiliariaDash());
+                ).returningResultSet("promotores", new RowMapperPromotor());
+        this.findByIdCall = new SimpleJdbcCall(jdbcTemplate)
+                .withProcedureName(StoredProcedureConstants.SP_BUSCAR_PROMOTOR_ID)
+                .declareParameters(new SqlParameter("idUsuario", Types.BIGINT))
+                .returningResultSet("promotor", new RowMapperPromotor());
     }
 
 
     @Override
     public Promotor crear(Promotor promotor) {
-        return null;
+        PromotorEntity entity = promotorMapper.toEntity(promotor);
+        Map<String, Object> params = new HashMap<>();
+        params.put("nombres", entity.getNombres());
+        params.put("apellidos", entity.getApellidos());
+        params.put("doi", entity.getDoi());
+        params.put("correo", entity.getCorreo());
+        params.put("idInmobiliaria", entity.getIdInmobiliaria());
+        params.put("idAdminEncargado", entity.getIdAdminEncargado());
+        params.put("estado", entity.isEstado());
+        params.put("fechaCreacion", entity.getFechaCreacion());
+        params.put("fechaModificacion", entity.getFechaModificacion());
+        Map<String, Object> result = saveCall.execute(params);
+        List<PromotorEntity> list = (List<PromotorEntity>) result.get("promotor");
+        if (list == null || list.isEmpty()) {
+            throw new RuntimeException("Error: El SP 'sp_crear_promotor' no devolvió la fila creada.");
+        }
+        return promotorMapper.toDomain(list.get(0));
+
     }
 
     @Override
     public Optional<Promotor> buscarPorId(Long idPromotor) {
-        return Optional.empty();
+        Map<String, Object> params = Map.of("idUsuario", idPromotor);
+        Map<String, Object> result = findByIdCall.execute(params);
+
+        @SuppressWarnings("unchecked")
+        List<PromotorEntity> entityList = (List<PromotorEntity>) result.get("prom" +
+                "otor");
+
+
+        if (entityList == null || entityList.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(promotorMapper.toDomain(entityList.get(0)));
     }
 
     @Override

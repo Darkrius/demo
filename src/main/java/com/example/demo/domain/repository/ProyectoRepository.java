@@ -13,4 +13,8 @@ public interface ProyectoRepository {
     long contarPorInmobiliaria(Long idInmobiliaria);
 
     Optional<Proyecto> buscarPorId(Long idProyecto);
+
+    List<Proyecto> getProyectosLookupByInmobiliaria(Long idInmobiliaria);
+
+
 }

@@ -9,7 +9,7 @@ public interface PromotorRepository {
 
     Promotor crear (Promotor promotor);
 
-    Optional<Promotor> buscarPorId(Long idPromotor);
+    Optional<Promotor> buscarPorId(Long idUsuario);
 
     Optional<Promotor> actualizar(Promotor promotor);
 

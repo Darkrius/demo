@@ -14,7 +14,9 @@ public class BuscarInmobiliariaService implements BuscarInmobiliariaPorUseCase {
         this.inmobiliariaRepository = inmobiliariaRepository;
     }
 
+
     @Override
-    public Optional<Inmobiliarias> buscarPorId(Long idInmobiliaria) {
-        return inmobiliariaRepository.buscarPorId(idInmobiliaria);    }
+    public boolean existePorId(Long idInmobiliaria) {
+        return inmobiliariaRepository.existePorId(idInmobiliaria);
+    }
 }
