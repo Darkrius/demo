@@ -149,7 +149,7 @@ public class InmobiliariaRepositoryImple implements InmobiliariaRepository {
 
 
     @Override
-    public List<DashBoardInmobiliaria> listarPorAdmin(String idAdminCreador, int page, int size) {
+    public List<Inmobiliarias> listarPorAdmin(String idAdminCreador, int page, int size) {
         Map<String, Object> params = new HashMap<>();
         params.put("idAdminCreador", idAdminCreador);
         params.put("PageNumber", page);
