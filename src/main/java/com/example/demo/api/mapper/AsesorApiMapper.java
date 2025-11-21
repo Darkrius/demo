@@ -2,7 +2,7 @@ package com.example.demo.api.mapper;
 
 
 import com.example.demo.api.dto.AsesorSimpleResponseDto;
-import com.example.demo.application.dto.PaginacionResponseDto;
+import com.example.demo.application.dto.query.PaginacionResponseDto;
 import com.example.demo.domain.entities.AsesorExterno;
 import org.mapstruct.Mapper;
 

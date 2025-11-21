@@ -1,10 +1,9 @@
 package com.example.demo.infraestructure.persistence.repositorys;
 
 import com.example.demo.domain.entities.Inmobiliarias;
-import com.example.demo.domain.repository.DashBoardInmobiliaria;
+import com.example.demo.application.dto.query.DashBoardInmobiliaria;
 import com.example.demo.domain.repository.InmobiliariaRepository;
 import com.example.demo.infraestructure.persistence.constants.StoredProcedureConstants;
-import com.example.demo.infraestructure.persistence.entities.AsesorExternoEntity;
 import com.example.demo.infraestructure.persistence.entities.InmobiliariasEntity;
 import com.example.demo.infraestructure.persistence.mapper.InmobiliariaMapper;
 import com.example.demo.infraestructure.persistence.mapper.RowMapperClientInmobiliaria;
@@ -14,7 +13,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.SqlOutParameter;
 import org.springframework.jdbc.core.SqlParameter;
-import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Repository;
 

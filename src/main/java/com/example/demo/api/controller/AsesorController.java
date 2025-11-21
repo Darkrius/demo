@@ -5,7 +5,7 @@ import com.example.demo.api.dto.AsesorSimpleResponseDto;
 import com.example.demo.api.dto.EnriquecerAsesorRequestDto;
 import com.example.demo.api.mapper.AsesorApiMapper;
 import com.example.demo.api.mapper.AsesorMapperApi;
-import com.example.demo.application.dto.PaginacionResponseDto;
+import com.example.demo.application.dto.query.PaginacionResponseDto;
 import com.example.demo.application.interfaces.asesores.EnriquecerAsesorCommand;
 import com.example.demo.application.interfaces.asesores.EnriquecerAsesorUseCase;
 import com.example.demo.application.interfaces.asesores.ListarAsesorUseCase;

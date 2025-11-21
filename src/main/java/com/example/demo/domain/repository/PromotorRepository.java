@@ -13,7 +13,7 @@ public interface PromotorRepository {
 
     Optional<Promotor> actualizar(Promotor promotor);
 
-    long contarPorAdmin (String idAdminCreador);
+//    long contarPorAdmin (String idAdminCreador);
 
-    List<Promotor> listarPorAdmin(String idAdminCreador, int page, int size);
+//    List<Promotor> listarPorAdmin(String idAdminCreador, int page, int size);
 }

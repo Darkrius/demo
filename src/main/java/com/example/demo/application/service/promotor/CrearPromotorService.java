@@ -1,7 +1,7 @@
 package com.example.demo.application.service.promotor;
 
-import com.example.demo.application.dto.ProvisionPromotorRequest;
-import com.example.demo.application.dto.ProvisionPromotorResponse;
+import com.example.demo.application.dto.command.ProvisionPromotorRequest;
+import com.example.demo.application.dto.query.ProvisionPromotorResponse;
 import com.example.demo.application.interfaces.asesores.promotor.CrearPromotorCommand;
 import com.example.demo.application.interfaces.asesores.promotor.CrearPromotorUseCase;
 import com.example.demo.domain.entities.Promotor;

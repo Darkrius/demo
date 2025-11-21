@@ -1,8 +1,8 @@
 package com.example.demo.application.service.inmobiliaria;
 
-import com.example.demo.application.dto.PaginacionResponseDto;
+import com.example.demo.application.dto.query.PaginacionResponseDto;
 import com.example.demo.application.interfaces.asesores.inmobiliaria.ListarInmobiliariaUseCase;
-import com.example.demo.domain.repository.DashBoardInmobiliaria;
+import com.example.demo.application.dto.query.DashBoardInmobiliaria;
 import com.example.demo.domain.repository.InmobiliariaRepository;
 import org.springframework.stereotype.Service;
 

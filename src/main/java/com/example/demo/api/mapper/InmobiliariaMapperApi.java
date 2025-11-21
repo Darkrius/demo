@@ -2,13 +2,11 @@ package com.example.demo.api.mapper;
 
 
 import com.example.demo.api.dto.*;
-import com.example.demo.application.dto.InmobiliariaLookupDto.InmobiliariaLookDtp;
-import com.example.demo.application.dto.PaginacionResponseDto;
+import com.example.demo.application.dto.query.PaginacionResponseDto;
 import com.example.demo.application.interfaces.asesores.inmobiliaria.CreateInmobiliariaCommand;
 import com.example.demo.application.interfaces.asesores.proyecto.CreateProyectoCommand;
 import com.example.demo.domain.entities.Inmobiliarias;
-import com.example.demo.domain.entities.Proyecto;
-import com.example.demo.domain.repository.DashBoardInmobiliaria;
+import com.example.demo.application.dto.query.DashBoardInmobiliaria;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

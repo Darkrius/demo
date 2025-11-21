@@ -1,15 +1,15 @@
 package com.example.demo.api.controller;
 
 
-import com.example.demo.api.dto.AsesorSimpleResponseDto;
 import com.example.demo.api.dto.CrearPromotorRequest;
 import com.example.demo.api.dto.PromotorResponse;
 import com.example.demo.api.mapper.PromotoMapperApi;
-import com.example.demo.application.dto.PaginacionResponseDto;
+import com.example.demo.application.dto.query.PaginacionResponseDto;
 import com.example.demo.application.interfaces.asesores.promotor.CrearPromotorCommand;
 import com.example.demo.application.interfaces.asesores.promotor.CrearPromotorUseCase;
 import com.example.demo.application.interfaces.asesores.promotor.ListarPromotorUseCase;
 import com.example.demo.domain.entities.Promotor;
+import com.example.demo.application.dto.query.PromotorDashBoard;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,11 +43,14 @@ public class PromotorController {
             @RequestParam(defaultValue = "10") int size
     ){
         String idAdminCreador = jwt.getSubject();
-        PaginacionResponseDto<Promotor> paginaCruda =
-                listarPromotorUseCase.listarPorAdmin( idAdminCreador,page, size);
+        PaginacionResponseDto<PromotorDashBoard> paginaCruda =
+                listarPromotorUseCase.listarPorAdmin(idAdminCreador, page, size);
         List<PromotorResponse> contenidoSimple =
-                promotorMapperApi.promotorToPromotorResponse(paginaCruda.content());
-        return ResponseEntity.ok(promotorMapperApi.toSimplePaginacionDto(paginaCruda));
+                promotorMapperApi.promotorDashBoardToPromotorResponse(paginaCruda.content());
+        PaginacionResponseDto<PromotorResponse> paginaMapeada = new PaginacionResponseDto<>(
+                contenidoSimple, paginaCruda.currentPage(), paginaCruda.totalPages(), paginaCruda.totalItems()
+        );
+        return ResponseEntity.ok(paginaMapeada);
     }
 
 

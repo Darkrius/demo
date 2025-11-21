@@ -1,12 +1,9 @@
 package com.example.demo.infraestructure.persistence.mapper;
 
-import com.example.demo.domain.entities.AsesorExterno;
 import com.example.demo.domain.entities.Inmobiliarias;
-import com.example.demo.domain.repository.DashBoardInmobiliaria;
-import com.example.demo.infraestructure.persistence.entities.AsesorExternoEntity;
+import com.example.demo.application.dto.query.DashBoardInmobiliaria;
 import com.example.demo.infraestructure.persistence.entities.InmobiliariasEntity;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
 import java.util.List;
 

@@ -1,8 +1,8 @@
 package com.example.demo.infraestructure.external;
 
 
-import com.example.demo.application.dto.ProvisionPromotorRequest;
-import com.example.demo.application.dto.ProvisionPromotorResponse;
+import com.example.demo.application.dto.command.ProvisionPromotorRequest;
+import com.example.demo.application.dto.query.ProvisionPromotorResponse;
 import feign.RequestInterceptor;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.context.annotation.Bean;

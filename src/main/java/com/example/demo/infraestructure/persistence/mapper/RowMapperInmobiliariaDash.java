@@ -1,6 +1,6 @@
 package com.example.demo.infraestructure.persistence.mapper;
 
-import com.example.demo.domain.repository.DashBoardInmobiliaria;
+import com.example.demo.application.dto.query.DashBoardInmobiliaria;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;

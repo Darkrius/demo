@@ -15,7 +15,7 @@ public interface InmobiliariaRepository {
 
     boolean existePorId(Long idInmobiliaria);
 
-    List<DashBoardInmobiliaria> listarPorAdmin(String idAdminCreador, int page, int size);
+    List<Inmobiliarias> listarPorAdmin(String idAdminCreador, int page, int size);
 
     Optional<Inmobiliarias> actualizar(Inmobiliarias inmobiliaria);
 

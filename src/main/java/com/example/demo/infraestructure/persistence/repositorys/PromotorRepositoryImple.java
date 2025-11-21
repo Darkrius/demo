@@ -1,12 +1,12 @@
 package com.example.demo.infraestructure.persistence.repositorys;
 
 import com.example.demo.domain.entities.Promotor;
+import com.example.demo.application.dto.query.PromotorDashBoard;
 import com.example.demo.domain.repository.PromotorRepository;
 import com.example.demo.infraestructure.persistence.constants.StoredProcedureConstants;
-import com.example.demo.infraestructure.persistence.entities.AsesorExternoEntity;
 import com.example.demo.infraestructure.persistence.entities.PromotorEntity;
 import com.example.demo.infraestructure.persistence.mapper.PromotorMapper;
-import com.example.demo.infraestructure.persistence.mapper.RowMapperInmobiliariaDash;
+import com.example.demo.infraestructure.persistence.mapper.RowMapperDashBoardPromotor;
 import com.example.demo.infraestructure.persistence.mapper.RowMapperPromotor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -61,7 +61,7 @@ public class PromotorRepositoryImple implements PromotorRepository {
                         new SqlParameter("idAdminCreador", Types.VARCHAR),
                         new SqlParameter("PageNumber", Types.INTEGER),
                         new SqlParameter("PageSize", Types.INTEGER)
-                ).returningResultSet("promotores", new RowMapperPromotor());
+                ).returningResultSet("promotores", new RowMapperDashBoardPromotor());
         this.findByIdCall = new SimpleJdbcCall(jdbcTemplate)
                 .withProcedureName(StoredProcedureConstants.SP_BUSCAR_PROMOTOR_ID)
                 .declareParameters(new SqlParameter("idUsuario", Types.BIGINT))
@@ -97,8 +97,7 @@ public class PromotorRepositoryImple implements PromotorRepository {
         Map<String, Object> result = findByIdCall.execute(params);
 
         @SuppressWarnings("unchecked")
-        List<PromotorEntity> entityList = (List<PromotorEntity>) result.get("prom" +
-                "otor");
+        List<PromotorEntity> entityList = (List<PromotorEntity>) result.get("promomotores");
 
 
         if (entityList == null || entityList.isEmpty()) {
@@ -123,7 +122,7 @@ public class PromotorRepositoryImple implements PromotorRepository {
     }
 
     @Override
-    public List<Promotor> listarPorAdmin(String idAdminCreador, int page, int size) {
+    public List<PromotorDashBoard> listarPorAdmin(String idAdminCreador, int page, int size) {
         Map<String, Object> params = new HashMap<>();
         params.put("idAdminCreador", idAdminCreador);
         params.put("PageNumber", page);
@@ -131,7 +130,8 @@ public class PromotorRepositoryImple implements PromotorRepository {
 
         Map<String, Object> resultado = this.listarCall.execute(params);
 
-        List<PromotorEntity> entidadList = (List<PromotorEntity>) resultado.get("promotores");
-        return promotorMapper.toDomainList(entidadList);
+        @SuppressWarnings("unchecked")
+        List<PromotorDashBoard> list = (List<PromotorDashBoard>) resultado.get("promotores");
+        return list != null ? list : List.of();
     }
 }

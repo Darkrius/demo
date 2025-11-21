@@ -1,7 +1,7 @@
 package com.example.demo.application.interfaces.asesores.inmobiliaria;
 
-import com.example.demo.application.dto.PaginacionResponseDto;
-import com.example.demo.domain.repository.DashBoardInmobiliaria;
+import com.example.demo.application.dto.query.PaginacionResponseDto;
+import com.example.demo.application.dto.query.DashBoardInmobiliaria;
 
 public interface ListarInmobiliariaUseCase {
 

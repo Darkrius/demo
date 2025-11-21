@@ -1,6 +1,6 @@
 package com.example.demo.infraestructure.adapter;
 
-import com.example.demo.application.dto.ProvisionPromotorRequest;
+import com.example.demo.application.dto.command.ProvisionPromotorRequest;
 import com.example.demo.domain.repository.AuthServicePort;
 import com.example.demo.infraestructure.external.AuthServicePortFeing;
 import org.springframework.stereotype.Component;
