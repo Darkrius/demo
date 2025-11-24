@@ -20,11 +20,18 @@ public class AsesoresEntity {
 
     @Id
     private String idAsesor;
+
     private String nombres;
+
     private String apellidos;
-    private String correoCorporativo;
+
     private String tipoReferido;
-    private boolean estado;
+
+    private  boolean estado;
+
     private LocalDateTime fechaUltimaAsignacion;
-    private Long idUbigeo;
+
+    private String idUbigeo;
+
+    private String correoCorporativo;
 }

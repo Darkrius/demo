@@ -1,24 +1,26 @@
 package com.example.demo.infraestructure.persistence.mapper;
 
-import com.example.demo.infraestructure.persistence.entities.AsesorExternoEntity;
 import com.example.demo.infraestructure.persistence.entities.AsesoresEntity;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class RowMapperAsesorExterno implements RowMapper<AsesorExternoEntity> {
-
-
+public class RowMapperAsesorExterno implements RowMapper<AsesoresEntity> {
     @Override
-    public AsesorExternoEntity mapRow(ResultSet rs, int rowNum) throws SQLException {
-        AsesorExternoEntity entity = new AsesorExternoEntity();
-        entity.setIdAsesorAD(rs.getString("idAsesorAD"));
-        entity.setNombres(rs.getString("nombres"));
-        entity.setApellidos(rs.getString("apellidos"));
-        entity.setCorreoCorporativo(rs.getString("correoCorporativo"));
-        entity.setDoi(rs.getString("doi"));
-        entity.setCiudad(rs.getString("ciudad"));
-        return entity;
+    public AsesoresEntity mapRow(ResultSet rs, int rowNum) throws SQLException {
+
+        //para los asesores externos solo ponemos lo que viene y solo vienen 3 cosas
+        //id , nombreCompleto y correo corporativo
+        return AsesoresEntity.builder()
+                .idAsesor(rs.getString("idAsesorAD"))
+                .nombres(rs.getString("nombres"))
+                .apellidos(rs.getString("apellidos"))
+                .tipoReferido(rs.getString("correoCorporativo"))
+                .tipoReferido(null)
+                .estado(false)
+                .fechaUltimaAsignacion(null)
+                .idUbigeo(null)
+                .build();
     }
 }
