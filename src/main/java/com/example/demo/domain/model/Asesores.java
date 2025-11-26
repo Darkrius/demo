@@ -4,21 +4,21 @@ import java.time.LocalDateTime;
 
 public class Asesores {
 
-    private String idAsesor;
+    private final String idAsesor;
 
-    private String nombres;
+    private final  String nombres;
 
-    private String apellidos;
+    private final  String apellidos;
 
-    private String tipoReferido;
+    private final  String tipoReferido;
 
-    private  boolean estado;
+    private    boolean estado;
 
-    private LocalDateTime fechaUltimaAsignacion;
+    private final  LocalDateTime fechaUltimaAsignacion;
 
-    private String idUbigeo;
+    private final  String idUbigeo;
 
-    private String correoCorporativo;
+    private final  String correoCorporativo;
 
 
 
@@ -54,65 +54,40 @@ public class Asesores {
         return idAsesor;
     }
 
-    public void setIdAsesor(String idAsesor) {
-        this.idAsesor = idAsesor;
-    }
 
     public String getNombres() {
         return nombres;
     }
 
-    public void setNombres(String nombres) {
-        this.nombres = nombres;
-    }
 
     public String getApellidos() {
         return apellidos;
     }
 
-    public void setApellidos(String apellidos) {
-        this.apellidos = apellidos;
-    }
 
     public String getTipoReferido() {
         return tipoReferido;
     }
 
-    public void setTipoReferido(String tipoReferido) {
-        this.tipoReferido = tipoReferido;
-    }
 
     public boolean isEstado() {
         return estado;
-    }
-
-    public void setEstado(boolean estado) {
-        this.estado = estado;
     }
 
     public LocalDateTime getFechaUltimaAsignacion() {
         return fechaUltimaAsignacion;
     }
 
-    public void setFechaUltimaAsignacion(LocalDateTime fechaUltimaAsignacion) {
-        this.fechaUltimaAsignacion = fechaUltimaAsignacion;
-    }
 
     public String getIdUbigeo() {
         return idUbigeo;
     }
 
-    public void setIdUbigeo(String idUbigeo) {
-        this.idUbigeo = idUbigeo;
-    }
 
     public String getCorreoCorporativo() {
         return correoCorporativo;
     }
 
-    public void setCorreoCorporativo(String correoCorporativo) {
-        this.correoCorporativo = correoCorporativo;
-    }
 
     public String getNombreCompleto() {
         return nombres + " " + apellidos;

@@ -27,7 +27,7 @@ public class AsesorExternoImple implements AsesorLegacyService {
 
 
 
-    public AsesorExternoImple(@Qualifier("legacyJdbcTemplate") JdbcTemplate jdbcTemplate, MapperAsesor mapperAsesor) {
+    public AsesorExternoImple(@Qualifier("legacyJdbcTemplate") JdbcTemplate jdbcTemplate) {
         this.listarcall = new SimpleJdbcCall(jdbcTemplate)
                 .withProcedureName(StoredProcedureConstants.SP_LISTAR_CANDIDATOS)
                 .declareParameters(

@@ -34,3 +34,6 @@ db-legacy:
 
 server:
   port: 8081
+
+storage:
+  root: "C:/Users/JAHIR/Downloads/cajita"

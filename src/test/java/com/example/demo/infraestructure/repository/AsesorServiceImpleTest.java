@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -24,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @Tag("integration")
 @Import({PrincipalDataSourceConfig.class, LegacyDataSourceConfig.class})
 @Transactional
-public class AsesorServiceImpleTest {
+class AsesorServiceImpleTest {
 
     @Autowired
     private AsesorServiceImple repository;

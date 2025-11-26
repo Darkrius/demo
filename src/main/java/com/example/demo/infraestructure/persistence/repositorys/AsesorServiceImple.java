@@ -28,7 +28,6 @@ public class AsesorServiceImple implements AsesorRepository {
     private final SimpleJdbcCall listarCall;
     private final SimpleJdbcCall guardarCall;
     private final SimpleJdbcCall buscarUbigeoCall;
-    private final JdbcTemplate jdbcTemplate;
 
     private final MapperAsesor mapperAsesor;
 
@@ -68,7 +67,6 @@ public class AsesorServiceImple implements AsesorRepository {
                 )
                 // Mapeamos para que devuelva solo el String
                 .returningResultSet("result", (rs, rowNum) -> rs.getString("idUbigeo"));
-        this.jdbcTemplate = jdbcTemplate;
         this.mapperAsesor = mapperAsesor;
     }
 

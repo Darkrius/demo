@@ -1,4 +1,4 @@
-package com.example.demo.infraestructure.external;
+package com.example.demo.infraestructure.config;
 
 
 import org.springframework.context.annotation.Bean;

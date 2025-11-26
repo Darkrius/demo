@@ -27,5 +27,9 @@ public class StoredProcedureConstants {
     public static final String SP_LISTAR_ASESORES_GESTION = "SP_LISTAR_ASESORES_GESTION";
     public static final String SP_GUARDAR_ASESOR = "SP_GUARDAR_ASESOR";
     public static final String SP_OBTENER_ID_UBIGEO = "SP_OBTENER_ID_UBIGEO";
+    public static final String SP_GUARDAR_INMOBILIARIA = "SP_GUARDAR_INMOBILIARIA";
+    public static final String SP_GUARDAR_PROYECTO = "SP_GUARDAR_PROYECTO";
+
+
 
 }
