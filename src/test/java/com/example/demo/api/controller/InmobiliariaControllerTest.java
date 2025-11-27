@@ -121,16 +121,27 @@ class InmobiliariaControllerTest {
     @DisplayName("POST /inmobiliarias -> 403 Forbidden (Usuario normal)")
     void registrar_SinPermisos() throws Exception {
 
-        MockMultipartFile metadata = new MockMultipartFile(
-                "data", "", "application/json", "{}".getBytes()
+        InmobiliariaRequest requestDto = new InmobiliariaRequest(
+                "20123456789",
+                "Inmobiliaria Fake SAC",
+                null
         );
 
+        // Convertimos el objeto a JSON bytes para el Multipart
+        MockMultipartFile metadata = new MockMultipartFile(
+                "data",
+                "",
+                "application/json",
+                objectMapper.writeValueAsBytes(requestDto)
+        );
+
+        // 2. WHEN & THEN
         mockMvc.perform(multipart(HttpMethod.POST, "/api/v1/inmobiliarias")
                         .file(metadata)
                         .with(csrf())
-                        // Usuario con rol USER (No ADMIN)
+                        // SIMULAMOS USUARIO SIN PERMISOS (SCOPE_USER)
                         .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_USER"))))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isForbidden()); // <--- ¡AHORA SÍ DARÁ 403!
     }
 
     // -------------------------------------------------------------------

@@ -59,7 +59,7 @@ class CrearInmobiliariaServiceImplTest {
         InmobiliariaDashBoardDto resultado = service.crearInmobiliaria(command, "ADMIN");
 
         assertNotNull(resultado);
-        assertEquals(50L, resultado.idImobiliara());
+        assertEquals(50L, resultado.idInmobiliaria());
         verify(inmobiliariaRepository, times(2)).guardarProyectos(any(), eq(50L));
     }
 

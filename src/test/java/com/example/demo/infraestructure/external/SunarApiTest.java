@@ -1,8 +1,7 @@
 package com.example.demo.infraestructure.external;
 
-import com.example.demo.application.dto.queries.DatosEmpresaDto;
+import com.example.demo.application.dto.DatosEmpresaDto;
 import com.example.demo.application.exceptions.ErrorDeConexionExternaException;
-import com.example.demo.infraestructure.external.SunatApiResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -1,6 +1,6 @@
 package com.example.demo.application.services;
 
-import com.example.demo.application.dto.queries.DatosEmpresaDto;
+import com.example.demo.application.dto.DatosEmpresaDto;
 import com.example.demo.application.exceptions.RecursoNoEncontradoException;
 import com.example.demo.application.exceptions.ReglasNegocioException;
 import com.example.demo.application.interfaces.external.SunatPort;

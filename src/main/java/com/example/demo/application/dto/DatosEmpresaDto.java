@@ -1,4 +1,4 @@
-package com.example.demo.application.dto.queries;
+package com.example.demo.application.dto;
 
 public record DatosEmpresaDto (
         String ruc,

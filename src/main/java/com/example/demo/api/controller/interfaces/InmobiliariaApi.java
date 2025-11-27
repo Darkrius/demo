@@ -2,7 +2,8 @@ package com.example.demo.api.controller.interfaces;
 
 
 import com.example.demo.api.dto.request.InmobiliariaRequest;
-import com.example.demo.application.dto.queries.DatosEmpresaDto;
+import com.example.demo.application.dto.PaginationResponseDTO;
+import com.example.demo.application.dto.DatosEmpresaDto;
 import com.example.demo.application.dto.queries.InmobiliariaDashBoardDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -52,5 +53,14 @@ public interface InmobiliariaApi {
             @Pattern(regexp = "\\d{11}", message = "El RUC debe tener exactamente 11 dígitos numéricos")
             String ruc
     );
+
+
+    @GetMapping()
+    ResponseEntity<PaginationResponseDTO<InmobiliariaDashBoardDto>> listar(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @AuthenticationPrincipal Jwt jwt
+    );
+
 
 }

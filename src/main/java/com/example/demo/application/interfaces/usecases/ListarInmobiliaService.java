@@ -5,5 +5,5 @@ import com.example.demo.application.dto.queries.InmobiliariaDashBoardDto;
 
 public interface ListarInmobiliaService {
 
-    PaginationResponseDTO<InmobiliariaDashBoardDto> listarInmobiliaria (int page, int size, String idAdminCreador);
+    PaginationResponseDTO<InmobiliariaDashBoardDto> listarInmobiliaria (String idAdminCreador, int page, int size);
 }

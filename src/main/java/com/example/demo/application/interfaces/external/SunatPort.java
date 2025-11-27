@@ -1,6 +1,6 @@
 package com.example.demo.application.interfaces.external;
 
-import com.example.demo.application.dto.queries.DatosEmpresaDto;
+import com.example.demo.application.dto.DatosEmpresaDto;
 
 import java.util.Optional;
 

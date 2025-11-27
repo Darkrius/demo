@@ -1,10 +1,9 @@
 package com.example.demo.application.dto.queries;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public record InmobiliariaDashBoardDto(
-        Long idImobiliara,
+        Long idInmobiliaria,
         String ruc,
         String razonSocial,
         int nProyectos,

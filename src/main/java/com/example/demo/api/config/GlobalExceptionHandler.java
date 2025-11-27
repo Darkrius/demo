@@ -20,28 +20,33 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({ AccessDeniedException.class, AuthorizationDeniedException.class })
     public ResponseEntity<ErrorResponse> handleAccessDenied(Exception ex) {
+        log.error(" ocurrido un error inesperado.", ex);
         return buildResponse(HttpStatus.FORBIDDEN, "No tiene permisos para realizar esta acción.");
     }
 
     @ExceptionHandler(ReglasNegocioException.class)
     public ResponseEntity<ErrorResponse> handleReglaNegocio(ReglasNegocioException ex) {
+        log.error("Ha  un error inesperado.", ex);
         return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
     @ExceptionHandler(RecursoNoEncontradoException.class)
     public ResponseEntity<ErrorResponse> handleNotFound(RecursoNoEncontradoException ex) {
+        log.error("Ha ocurrido  error inesperado.", ex);
         return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
     // 2. ENTIDAD DUPLICADA -> 409 Conflict
     @ExceptionHandler(EntidadDuplicadaException.class)
     public ResponseEntity<ErrorResponse> handleDuplicado(EntidadDuplicadaException ex) {
+        log.error("Ha ocurrido un  inesperado.", ex);
         return buildResponse(HttpStatus.CONFLICT, ex.getMessage());
     }
 
     // 3. ERROR EXTERNO -> 502 Bad Gateway (O 503 Service Unavailable)
     @ExceptionHandler(ErrorDeConexionExternaException.class)
     public ResponseEntity<ErrorResponse> handleExterno(ErrorDeConexionExternaException ex) {
+        log.error("Ha ocurrido un error .", ex);
         return buildResponse(HttpStatus.BAD_GATEWAY, "El servicio de asesores externos no está disponible momentáneamente.");
     }
 
@@ -53,6 +58,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(PersistenceException.class)
     public ResponseEntity<ErrorResponse> handleSql(PersistenceException ex) {
+        log.error("Ha ocurrido un error inesperado.", ex);
         return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR,
                 "Error al acceder a la base de datos.");
     }

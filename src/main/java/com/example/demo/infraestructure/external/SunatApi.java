@@ -1,6 +1,6 @@
 package com.example.demo.infraestructure.external;
 
-import com.example.demo.application.dto.queries.DatosEmpresaDto;
+import com.example.demo.application.dto.DatosEmpresaDto;
 import com.example.demo.application.exceptions.ErrorDeConexionExternaException;
 import com.example.demo.application.interfaces.external.SunatPort;
 import lombok.extern.slf4j.Slf4j;

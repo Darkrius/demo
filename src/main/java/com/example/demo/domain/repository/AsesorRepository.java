@@ -1,6 +1,5 @@
 package com.example.demo.domain.repository;
 
-import com.example.demo.application.dto.queries.AsesorDashBoardDto;
 import com.example.demo.domain.dto.AsesorDashBoard;
 import com.example.demo.domain.model.Asesores;
 

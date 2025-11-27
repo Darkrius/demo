@@ -66,6 +66,7 @@ public class AsesorExternoImple implements AsesorLegacyService {
             List<SpResult> resultados = (List<SpResult>) out.get("resultados");
             long totalElements = 0;
             List<AsesorLegacyDto> content = List.of();
+
             if (resultados != null && !resultados.isEmpty()) {
                 totalElements = resultados.get(0).total();
                 content = resultados.stream()
