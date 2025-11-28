@@ -50,7 +50,7 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.BAD_GATEWAY, "El servicio de asesores externos no está disponible momentáneamente.");
     }
 
-    @ExceptionHandler({StorageException.class, Exception.class})
+    @ExceptionHandler({StorageException.class, ErrorInesperadoException.class,EventPublishingException.class, Exception.class})
     public ResponseEntity<ErrorResponse> handleGeneral(Exception ex) {
         log.error("API 500 CRITICO: Ha ocurrido un error inesperado.", ex);
         return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Ocurrió un error interno al procesar la solicitud.");

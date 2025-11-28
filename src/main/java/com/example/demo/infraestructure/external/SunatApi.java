@@ -4,8 +4,10 @@ import com.example.demo.application.dto.DatosEmpresaDto;
 import com.example.demo.application.exceptions.ErrorDeConexionExternaException;
 import com.example.demo.application.interfaces.external.SunatPort;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 
@@ -17,7 +19,7 @@ public class SunatApi implements SunatPort {
 
     private final RestTemplate restTemplate;
 
-    private static final String   SUNAT_API_URL="https://springlabs.dev/sunat/consultadatos/";
+    private static final String SUNAT_API_URL = "https://springlabs.dev/sunat/consultadatos/";
 
     public SunatApi(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
@@ -44,11 +46,23 @@ public class SunatApi implements SunatPort {
             }
             return Optional.empty();
 
-        } catch (HttpClientErrorException.NotFound e) {
-            return Optional.empty(); // 404 controlado
+        } catch (HttpClientErrorException e) { // Captura general de errores 4xx
+            if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+                log.warn("INFRA: RUC [{}] no encontrado.", ruc);
+                return Optional.empty(); // <--- Aquí debe entrar
+            }
+            throw new ErrorDeConexionExternaException("Error cliente SUNAT", e);
+        }catch (RestClientException e) {
+            // <--- ¡ESTE ES EL QUE TE FALTA!
+            // Captura errores de conexión (Timeout, DNS, 500)
+            log.error("INFRA ERROR: Falló conexión con API Sunat.", e);
+            throw new ErrorDeConexionExternaException("Error de conexión con el servicio de SUNAT.", e);
+
         } catch (Exception e) {
-            throw new ErrorDeConexionExternaException("Error al conectar con SUNAT", e);
+            // Catch final de seguridad
+            throw new ErrorDeConexionExternaException("Error inesperado al consultar SUNAT.", e);
         }
+
     }
-    }
+}
 

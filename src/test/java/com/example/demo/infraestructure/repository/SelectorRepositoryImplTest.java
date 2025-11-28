@@ -10,7 +10,7 @@ import com.example.demo.infraestructure.config.PrincipalDataSourceConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
+import java.security.SecureRandom;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
@@ -35,11 +35,19 @@ class SelectorRepositoryImplTest {
     @Autowired
     private InmobilariaRepository writeRepository; // Helper para crear datos (Escritura)
 
+    private final SecureRandom secureRandom = new SecureRandom();
+
+    private String generarRucValido() {
+        int aleatorio = 100_000_000 + secureRandom.nextInt(900_000_000);
+
+        return "20" + aleatorio;
+    }
+
     @Test
     @DisplayName("Debe listar inmobiliarias activas en el selector")
     void listarInmobiliarias_Exito() {
         // 1. GIVEN: Crear datos reales
-        String ruc = "20" + System.currentTimeMillis();
+        String ruc = generarRucValido();
         String nombreEmpresa = "Selector Test SAC";
 
         Inmobiliarias inmo = Inmobiliarias.crear(ruc, nombreEmpresa, "ADMIN_TEST", null);
@@ -62,7 +70,7 @@ class SelectorRepositoryImplTest {
     @DisplayName("Debe listar proyectos de una inmobiliaria específica")
     void listarProyectos_Exito() {
         // 1. GIVEN
-        String ruc = "20" + System.currentTimeMillis();
+        String ruc = generarRucValido();
         Inmobiliarias padre = Inmobiliarias.crear(ruc, "Padre Proyectos SAC", "ADMIN", null);
         long idPadre = writeRepository.guardarInmobiliaria(padre);
 

@@ -42,7 +42,7 @@ class SunarApiTest {
 
         // Then
         assertTrue(resultado.isPresent());
-        assertEquals("MI EMPRESA S.A.C.", resultado.get());
+        assertEquals("MI EMPRESA S.A.C.", resultado.get().razonSocial());
     }
 
     @Test

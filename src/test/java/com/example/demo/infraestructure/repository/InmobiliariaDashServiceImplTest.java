@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import java.security.SecureRandom;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -30,8 +31,14 @@ class InmobiliariaDashServiceImplTest {
     private InmobilariaRepository commandRepository; // Helper para insertar datos (Escritura)
 
     // Helper para RUC único
-    private String generarRuc() {
-        return "20" + (100000000 + (long)(Math.random() * 900000000));
+    private final SecureRandom secureRandom = new SecureRandom();
+
+    private String generarRucValido() {
+        // Genera un número entero entre 0 y 899,999,999 y le suma 100,000,000
+        // Resultado: Un número de 9 dígitos (100000000 a 999999999)
+        int aleatorio = 100_000_000 + secureRandom.nextInt(900_000_000);
+
+        return "20" + aleatorio;
     }
 
     @Test
@@ -39,7 +46,7 @@ class InmobiliariaDashServiceImplTest {
     void listarDashboard_Exito() {
         // 1. GIVEN (Preparamos el escenario en BD)
         String adminId = "ADMIN_TESTER";
-        String ruc = generarRuc();
+        String ruc = generarRucValido();
         String razonSocial = "Inmobiliaria Dashboard Test SAC";
 
         // A. Creamos la Inmobiliaria

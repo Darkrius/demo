@@ -8,6 +8,8 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class RabbitMQConfig {
+    public static final String EXCHANGE_NAME = "buscame_events_exchange";
+    public static final String ROUTING_KEY_PROMOTOR = "promotor.creado";
 
     @Bean
     public MessageConverter jsonMessageConverter() {

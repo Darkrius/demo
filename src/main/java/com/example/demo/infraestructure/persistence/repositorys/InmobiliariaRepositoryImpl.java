@@ -66,6 +66,7 @@ public class InmobiliariaRepositoryImpl implements InmobilariaRepository {
 
             Map<String, Object> result = guardarInmobiliaria.execute(parametros);
 
+            @SuppressWarnings("unchecked")
             List<Long> ids = (List<Long>) result.get("idResult");
 
             if (ids != null && !ids.isEmpty()) {
@@ -73,7 +74,7 @@ public class InmobiliariaRepositoryImpl implements InmobilariaRepository {
                 log.info("INFRA: Inmobiliaria guardada exitosamente. ID Generado: [{}]", idGenerado);
                 return idGenerado;
             } else {
-                throw new com.example.demo.application.exceptions.PersistenceException("El SP de guardar inmobiliaria no devolvió el ID generado.");
+                throw new PersistenceException("El SP de guardar inmobiliaria no devolvió el ID generado.");
             }
 
         } catch (Exception e) {
