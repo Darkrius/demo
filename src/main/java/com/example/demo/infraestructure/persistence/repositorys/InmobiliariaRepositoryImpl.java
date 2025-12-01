@@ -19,6 +19,7 @@ import java.sql.Types;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @Repository
@@ -27,6 +28,7 @@ public class InmobiliariaRepositoryImpl implements InmobilariaRepository {
 
     private final SimpleJdbcCall guardarInmobiliaria;
     private final SimpleJdbcCall guardarProyectos;
+    private final SimpleJdbcCall buscarRazonSocialPorId;
     private final MapperInmobiliaria mapperInmobiliaria;
 
 
@@ -46,6 +48,12 @@ public class InmobiliariaRepositoryImpl implements InmobilariaRepository {
                         new SqlParameter("Nombre" , Types.VARCHAR),
                         new SqlParameter("IdInmobiliaria", Types.BIGINT)
                 );
+        this.buscarRazonSocialPorId = new SimpleJdbcCall(jdbcTemplate)
+                .withProcedureName(StoredProcedureConstants.SP_BUSCAR_RAZONSOCIAL)
+                .declareParameters(
+                        new SqlParameter("IdInmobiliaria", Types.BIGINT)
+                )
+                .returningResultSet("razonSocial", (rs, rowNum) -> rs.getString("razonSocial"));
         this.mapperInmobiliaria = mapperInmobiliaria;
     }
 
@@ -99,6 +107,30 @@ public class InmobiliariaRepositoryImpl implements InmobilariaRepository {
         } catch (Exception e) {
             log.error("INFRA ERROR: Falló el guardado del proyecto [{}].", proyectos.getNombre(), e);
             throw e;
+        }
+    }
+
+    @Override
+    public Optional<String> buscarRazonSocialPorId(Long idInmobiliaria) {
+        log.debug("INFRA: Buscando Razón Social para ID: [{}]", idInmobiliaria);
+
+        try {
+            Map<String, Object> params = new HashMap<>();
+            params.put("IdInmobiliaria", idInmobiliaria);
+
+            Map<String, Object> out = buscarRazonSocialPorId.execute(params);
+
+            List<String> resultados = (List<String>) out.get("razonSocial");
+
+            if (resultados != null && !resultados.isEmpty()) {
+                return Optional.ofNullable(resultados.get(0));
+            }
+
+            return Optional.empty();
+
+        } catch (Exception e) {
+            log.error("INFRA ERROR: Falló SP_OBTENER_RAZON_SOCIAL.", e);
+            return Optional.empty();
         }
     }
 }

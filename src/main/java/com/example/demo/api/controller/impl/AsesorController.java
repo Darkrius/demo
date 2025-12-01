@@ -35,12 +35,10 @@ public class AsesorController implements AsesorApi {
     @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     public ResponseEntity<PaginationResponseDTO<?>> listar(int page, int size, String nombre, String ciudad, String origen) {
         log.info("API: Solicitud de listado recibida. Origen: [{}], Page: [{}], Size: [{}]", origen, page, size);
-
         if ("EXTERNO".equalsIgnoreCase(origen)) {
             log.debug("API: Redirigiendo a flujo EXTERNO (Candidatos)");
             var response = asesoresExternosService.listarCandidatosExternos(page, size, nombre, ciudad);
             return ResponseEntity.ok(response);
-
         } else {
             log.debug("API: Redirigiendo a flujo INTERNO (Dashboard)");
             var response = listarAsesorService.listarAsesoresGestion(page, size, nombre);

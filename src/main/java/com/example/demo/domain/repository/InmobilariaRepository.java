@@ -3,6 +3,8 @@ package com.example.demo.domain.repository;
 import com.example.demo.domain.model.Inmobiliarias;
 import com.example.demo.domain.model.Proyectos;
 
+import java.util.Optional;
+
 
 public interface InmobilariaRepository {
 
@@ -11,4 +13,5 @@ public interface InmobilariaRepository {
 
     void guardarProyectos(Proyectos proyectos, Long idInmobiliaria);
 
+    Optional<String> buscarRazonSocialPorId(Long idInmobiliaria);
 }

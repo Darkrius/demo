@@ -8,6 +8,7 @@ import com.example.demo.application.interfaces.external.IEventPublisher;
 import com.example.demo.application.interfaces.usecases.RegistrarPromotorService;
 import com.example.demo.domain.model.DatosPersonales;
 import com.example.demo.domain.model.Promotor;
+import com.example.demo.domain.repository.InmobilariaRepository;
 import com.example.demo.domain.repository.PromotorRepository;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -20,10 +21,12 @@ public class RegistrarPromotorServiceImpl implements RegistrarPromotorService {
 
     private final PromotorRepository promotorRepository;
     private final IEventPublisher iEventPublisher;
+    private final InmobilariaRepository inmobilariaRepository;
 
-    public RegistrarPromotorServiceImpl(PromotorRepository promotorRepository, IEventPublisher iEventPublisher) {
+    public RegistrarPromotorServiceImpl(PromotorRepository promotorRepository, IEventPublisher iEventPublisher, InmobilariaRepository inmobilariaRepository) {
         this.promotorRepository = promotorRepository;
         this.iEventPublisher = iEventPublisher;
+        this.inmobilariaRepository = inmobilariaRepository;
     }
 
 
@@ -57,6 +60,10 @@ public class RegistrarPromotorServiceImpl implements RegistrarPromotorService {
 
             nuevoPromotor.asignarId(idGenerado);
 
+            String nombreInmobiliaria = inmobilariaRepository
+                    .buscarRazonSocialPorId(registrarPromotorCommand.idInmobiliaria())
+                    .orElse("Inmobiliaria Desconocida");
+
             log.info("SERVICE: Promotor guardado con ID: [{}]", idGenerado);
 
             // 6. PERSISTENCIA DE HIJOS (Relaciones)
@@ -87,7 +94,7 @@ public class RegistrarPromotorServiceImpl implements RegistrarPromotorService {
             return new PromotorDashBoardDto(
                     nuevoPromotor.getIdUsuario(),
                     nuevoPromotor.getNombreCompleto(),
-                    "Cargando...", // Nota: Al guardar no tenemos el nombre de la Inmobiliaria (requiere JOIN), ponemos placeholder o null
+                    nombreInmobiliaria, // Nota: Al guardar no tenemos el nombre de la Inmobiliaria (requiere JOIN), ponemos placeholder o null
                     nuevoPromotor.isEstado(),
                     nuevoPromotor.getFechaModificacion()
             );
