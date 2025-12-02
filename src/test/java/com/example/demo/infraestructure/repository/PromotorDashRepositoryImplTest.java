@@ -79,4 +79,6 @@ class PromotorDashRepositoryImplTest {
         // Validación de Paginación (TotalRegistros del SP)
         assertTrue(respuesta.totalElements() >= 1);
     }
+
+
 }

@@ -6,6 +6,8 @@ import com.example.demo.api.mapper.PromotorApiMapper;
 import com.example.demo.application.dto.PaginationResponseDTO;
 import com.example.demo.application.dto.commands.RegistrarPromotorCommand;
 import com.example.demo.application.dto.queries.PromotorDashBoardDto;
+import com.example.demo.application.dto.queries.PromotorDetalleDto;
+import com.example.demo.application.interfaces.usecases.DetallePromotorService;
 import com.example.demo.application.interfaces.usecases.ListarPromotorService;
 import com.example.demo.application.interfaces.usecases.RegistrarPromotorService;
 import lombok.extern.slf4j.Slf4j;
@@ -26,10 +28,14 @@ public class PromotorController implements PromotorApi {
 
     private final PromotorApiMapper promotorApiMapper;
 
-    public PromotorController(RegistrarPromotorService registrarPromotorService, ListarPromotorService listarPromotorService, PromotorApiMapper promotorApiMapper) {
+    private final DetallePromotorService obtenerDetalleService;
+
+
+    public PromotorController(RegistrarPromotorService registrarPromotorService, ListarPromotorService listarPromotorService, PromotorApiMapper promotorApiMapper, DetallePromotorService obtenerDetalleService) {
         this.registrarPromotorService = registrarPromotorService;
         this.listarPromotorService = listarPromotorService;
         this.promotorApiMapper = promotorApiMapper;
+        this.obtenerDetalleService = obtenerDetalleService;
     }
 
 
@@ -56,5 +62,16 @@ public class PromotorController implements PromotorApi {
                 listarPromotorService.listarPromotor(idAdmin, page, size);
 
         return ResponseEntity.ok(response);
+    }
+
+    @Override
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+    public ResponseEntity<PromotorDetalleDto> obtenerPorId(Long idUsuario) {
+        log.info("API: Solicitud de detalle para Promotor ID: [{}]", idUsuario);
+
+        // Llamamos al Caso de Uso (Este ya maneja la excepción 404 si no existe)
+        PromotorDetalleDto detalle = obtenerDetalleService.listar(idUsuario);
+
+        return ResponseEntity.ok(detalle);
     }
 }
