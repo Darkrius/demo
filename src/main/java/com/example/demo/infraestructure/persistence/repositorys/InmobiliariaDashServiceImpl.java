@@ -3,12 +3,14 @@ package com.example.demo.infraestructure.persistence.repositorys;
 
 import com.example.demo.application.dto.PaginationResponseDTO;
 import com.example.demo.application.dto.queries.InmobiliariaDashBoardDto;
+import com.example.demo.application.dto.queries.InmobiliariaDetalleDto;
 import com.example.demo.application.exceptions.PersistenceException;
 import com.example.demo.application.interfaces.external.InmobiliariaPortService;
 import com.example.demo.domain.dto.InmobiliariaDashBoard;
 import com.example.demo.infraestructure.persistence.constants.StoredProcedureConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.task.TaskExecutionProperties;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.SqlParameter;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
@@ -18,12 +20,14 @@ import java.sql.Types;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @Repository
 public class InmobiliariaDashServiceImpl implements InmobiliariaPortService {
 
     private final SimpleJdbcCall listarCall;
+    private final SimpleJdbcCall listarPorIdInmobiliaria;
 
     public InmobiliariaDashServiceImpl(@Qualifier("principalJdbcTemplate") JdbcTemplate jdbcTemplate) {
         this.listarCall = new SimpleJdbcCall(jdbcTemplate)
@@ -42,6 +46,32 @@ public class InmobiliariaDashServiceImpl implements InmobiliariaPortService {
                                 rs.getBoolean("estado"),
                                 rs.getTimestamp("fechaModificacion").toLocalDateTime(),
                                 rs.getLong("TotalRegistros")
+                        )
+                );
+        this.listarPorIdInmobiliaria = new SimpleJdbcCall(jdbcTemplate)
+                .withProcedureName(StoredProcedureConstants.SP_BUSCAR_INMOBILIARIA_ID)
+                .declareParameters(
+                        new SqlParameter("idInmobiliaria", Types.BIGINT)
+                )
+                .returningResultSet("inmobiliaria", (rs, rowNum) ->
+                        new  InmobiliariaHeaderTem(
+                                rs.getLong("idInmobiliaria"),
+                                rs.getString("ruc"),
+                                rs.getString("razonSocial")
+                        )
+                )
+                .returningResultSet("proyectos", (rs, rowNum) ->
+                        new InmobiliariaDetalleDto.ProyectosDto(
+                                rs.getLong("idProyecto"),
+                                rs.getString("nombreProyecto")
+                        )
+                )
+                .returningResultSet("promotoresProyectos", (rs, rowNum) ->
+                        new InmobiliariaDetalleDto.PromotoresProyectoDto(
+                                rs.getLong("idProyecto"),
+                                rs.getString("nombreProyecto"),
+                                rs.getLong("idPromotor"),
+                                rs.getString("nombrePromotor")
                         )
                 );
     }
@@ -105,4 +135,44 @@ public class InmobiliariaDashServiceImpl implements InmobiliariaPortService {
         }
 
     }
+
+    @Override
+    public Optional<InmobiliariaDetalleDto> listarInmobiliariaPorId(Long idInmobiliaria) {
+        log.info("INFRA: Consultando Get del Promotor Interno. idInmobiliaria: [{}]" , idInmobiliaria);
+
+        try {
+            Map<String, Object> params = new HashMap<>();
+            params.put("idInmobiliaria", idInmobiliaria);
+            Map<String, Object> out = listarPorIdInmobiliaria.execute(params);
+
+            List<InmobiliariaHeaderTem> inmobiliarias = (List<InmobiliariaHeaderTem>) out.get("inmobiliaria");
+            if (inmobiliarias.isEmpty()) return Optional.empty();
+            InmobiliariaHeaderTem promotor = inmobiliarias.getFirst();
+
+
+            List<InmobiliariaDetalleDto.ProyectosDto> proyectos = (List<InmobiliariaDetalleDto.ProyectosDto>) out.get("proyectos");
+            List<InmobiliariaDetalleDto.PromotoresProyectoDto> promotoresProyectos = (List<InmobiliariaDetalleDto.PromotoresProyectoDto>) out.get("promotoresProyectos");
+
+            InmobiliariaDetalleDto detalleDto = new InmobiliariaDetalleDto(
+                    promotor.idInmobiliaria(),
+                    promotor.ruc(),
+                    promotor.razonSocial(),
+                    proyectos,
+                    promotoresProyectos
+            );
+
+            return Optional.of(detalleDto);
+
+        }catch (Exception e) {
+            log.error("INFRA ERROR: Falló SP_XXXXXX.", e);
+            throw new PersistenceException("Error al obtener detalle de la inmobiliaria.", e);
+        }
+
+    }
+
+
+    private record InmobiliariaHeaderTem(
+            Long idInmobiliaria, String ruc, String razonSocial
+    ) {}
+
 }

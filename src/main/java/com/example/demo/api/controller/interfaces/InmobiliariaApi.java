@@ -5,6 +5,8 @@ import com.example.demo.api.dto.request.InmobiliariaRequest;
 import com.example.demo.application.dto.PaginationResponseDTO;
 import com.example.demo.application.dto.DatosEmpresaDto;
 import com.example.demo.application.dto.queries.InmobiliariaDashBoardDto;
+import com.example.demo.application.dto.queries.InmobiliariaDetalleDto;
+import com.example.demo.application.dto.queries.PromotorDetalleDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -60,6 +62,19 @@ public interface InmobiliariaApi {
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
             @AuthenticationPrincipal Jwt jwt
+    );
+
+
+    @Operation(summary = "Obtener detalles de una inmobiliaria", description = "Devulve todo los datos de la inmobiliara, incluyendo los promotores asignados a sus respectivos proyectos")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Inmobiliaria Encontrado",
+                    content = @Content(schema = @Schema(implementation = PromotorDetalleDto.class))),
+            @ApiResponse(responseCode = "404", description = "Inmobiliaria no encontrado", content = @Content)
+    })
+    @GetMapping("/{idInmobiliaria}")
+    ResponseEntity<InmobiliariaDetalleDto> obtenerPorId(
+            @Parameter(description = "ID unico de la inmobiliaria", required = true, example = "50")
+            @PathVariable("idInmobiliaria") Long idInmobiliaria
     );
 
 

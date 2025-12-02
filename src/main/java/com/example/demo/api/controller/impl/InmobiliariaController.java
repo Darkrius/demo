@@ -7,8 +7,10 @@ import com.example.demo.application.dto.PaginationResponseDTO;
 import com.example.demo.application.dto.commands.RegistrarInmobiliariaCommand;
 import com.example.demo.application.dto.DatosEmpresaDto;
 import com.example.demo.application.dto.queries.InmobiliariaDashBoardDto;
+import com.example.demo.application.dto.queries.InmobiliariaDetalleDto;
 import com.example.demo.application.interfaces.usecases.ConsultarRucService;
 import com.example.demo.application.interfaces.usecases.CrearInmobiliariaService;
+import com.example.demo.application.interfaces.usecases.DetalleInmobiliariaService;
 import com.example.demo.application.interfaces.usecases.ListarInmobiliaService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -27,12 +29,14 @@ public class InmobiliariaController implements InmobiliariaApi {
     private final InmobiliriaApiMapper inmobiliriaApiMapper;
     private final ConsultarRucService consultarRucUseCase;
     private final ListarInmobiliaService listarService;
+    private final DetalleInmobiliariaService detalleInmobiliariaService;
 
-    public InmobiliariaController(CrearInmobiliariaService crearInmobiliariaService, InmobiliriaApiMapper inmobiliriaApiMapper, ConsultarRucService consultarRucUseCase, ListarInmobiliaService listarService) {
+    public InmobiliariaController(CrearInmobiliariaService crearInmobiliariaService, InmobiliriaApiMapper inmobiliriaApiMapper, ConsultarRucService consultarRucUseCase, ListarInmobiliaService listarService, DetalleInmobiliariaService detalleInmobiliariaService) {
         this.crearInmobiliariaService = crearInmobiliariaService;
         this.inmobiliriaApiMapper = inmobiliriaApiMapper;
         this.consultarRucUseCase = consultarRucUseCase;
         this.listarService = listarService;
+        this.detalleInmobiliariaService = detalleInmobiliariaService;
     }
 
     @Override
@@ -78,6 +82,15 @@ public class InmobiliariaController implements InmobiliariaApi {
         return ResponseEntity.ok(response);
     }
 
+    @Override
+    public ResponseEntity<InmobiliariaDetalleDto> obtenerPorId(Long idInmobiliaria) {
+        log.info("API: Solicitud de detalle para idInmobiliaria : [{}]", idInmobiliaria);
+
+        InmobiliariaDetalleDto detalle = detalleInmobiliariaService.listar(idInmobiliaria);
+
+        return ResponseEntity.ok(detalle);
+
+    }
 
 
 }
