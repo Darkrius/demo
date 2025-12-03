@@ -3,9 +3,11 @@ package com.example.demo.infraestructure.repository;
 
 import com.example.demo.application.dto.PaginationResponseDTO;
 import com.example.demo.application.dto.queries.PromotorDashBoardDto;
+import com.example.demo.application.dto.queries.PromotorDetalleDto;
 import com.example.demo.domain.model.DatosPersonales;
 import com.example.demo.domain.model.Inmobiliarias;
 import com.example.demo.domain.model.Promotor;
+import com.example.demo.domain.model.Proyectos;
 import com.example.demo.domain.repository.InmobilariaRepository; // Para crear datos previos
 import com.example.demo.domain.repository.PromotorRepository;    // Para crear datos previos
 import com.example.demo.infraestructure.config.LegacyDataSourceConfig;
@@ -20,6 +22,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -80,5 +83,36 @@ class PromotorDashRepositoryImplTest {
         assertTrue(respuesta.totalElements() >= 1);
     }
 
+    @Test
+    @DisplayName("Debe obtener el detalle completo del promotor (Padre + Proyectos + Prospectos)")
+    void obtenerDetallePorId_Completo() {
+        String adminId = "ADMIN_DETALLE";
+
+        Inmobiliarias inmo = Inmobiliarias.crear("20" + rand().substring(0,9), "Inmo Detalle SAC", adminId, null);
+        Long idInmo = inmoRepo.guardarInmobiliaria(inmo);
+
+        Proyectos proy = Proyectos.crear("Proyecto Detalle 1");
+        inmoRepo.guardarProyectos(proy, idInmo);
+
+        DatosPersonales datos = new DatosPersonales("Maria", "Detalle", "88888888", "maria@detalle.com");
+        Promotor p = Promotor.registrar(datos, adminId, idInmo, "HIPO", null);
+        Long idPromotor = promotorWriteRepo.guardarPromotor(p);
+
+        Optional<PromotorDetalleDto> resultado = repository.listarPromotorPorId(idPromotor);
+
+        assertTrue(resultado.isPresent(), "Debería encontrar al promotor");
+        PromotorDetalleDto detalle = resultado.get();
+
+        assertEquals(idPromotor, detalle.idUsuario());
+        assertEquals("Maria", detalle.nombres());
+        assertEquals("Detalle", detalle.apellidos()); // Si concatenas
+        assertEquals("Inmo Detalle SAC", detalle.razonSocial());
+        assertEquals(inmo.getRuc(), detalle.ruc());
+
+        // Validar Listas (Deben estar vacías pero no nulas si no asignamos nada)
+        assertNotNull(detalle.proyectosAsignados());
+        assertNotNull(detalle.prospectosCaptados());
+
+    }
 
 }

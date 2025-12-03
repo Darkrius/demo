@@ -37,7 +37,7 @@ public class StoredProcedureConstants {
     public static final String SP_ASIGNAR_PROYECTOS_PROMOTOR = "SP_ASIGNAR_PROYECTO_PROMOTOR";
     public static final String SP_BUSCAR_RAZONSOCIAL = "SP_BUSCAR_RAZON_SOCIAL";
     public static final String SP_BUSCAR_PROMOTOR_ID = "SP_OBTENER_PROMOTOR_POR_ID";
-    public static final String SP_BUSCAR_INMOBILIARIA_ID = "XXXXXXXXX";
+    public static final String SP_BUSCAR_INMOBILIARIA_ID = "SP_OBTENER_INMOBILIARIA_POR_ID";
 
 
 

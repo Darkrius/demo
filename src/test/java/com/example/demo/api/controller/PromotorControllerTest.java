@@ -4,7 +4,10 @@ import com.example.demo.api.mapper.PromotorApiMapper;
 import com.example.demo.application.dto.PaginationResponseDTO;
 import com.example.demo.application.dto.commands.RegistrarPromotorCommand;
 import com.example.demo.application.dto.queries.PromotorDashBoardDto;
+import com.example.demo.application.dto.queries.PromotorDetalleDto;
 import com.example.demo.application.exceptions.EntidadDuplicadaException;
+import com.example.demo.application.exceptions.RecursoNoEncontradoException;
+import com.example.demo.application.interfaces.usecases.DetallePromotorService;
 import com.example.demo.application.interfaces.usecases.ListarPromotorService;
 import com.example.demo.application.interfaces.usecases.RegistrarPromotorService;
 import com.example.demo.infraestructure.config.LegacyDataSourceConfig;
@@ -51,7 +54,9 @@ class PromotorControllerTest {
     // Mocks de la Capa Application (Aislamos el Controller)
     @MockitoBean private RegistrarPromotorService registrarService;
     @MockitoBean private ListarPromotorService listarService;
-    @MockitoBean private PromotorApiMapper mapper; // Necesario para que el contexto cargue
+    @MockitoBean private PromotorApiMapper mapper;
+    @MockitoBean
+    private DetallePromotorService obtenerDetalleService;
 
     private final String API_URL = "/api/v1/promotores";
     private final String ADMIN_ID = "ADM-123";
@@ -79,7 +84,6 @@ class PromotorControllerTest {
                 50L, "Juan Perez", "Cargando...", true, LocalDateTime.now()
         );
 
-        // Mockeamos la conversión a Command y la llamada al servicio
         when(mapper.toCommand(any())).thenReturn(new RegistrarPromotorCommand("J", "P", "8", "c@c.c", 1L, null));
         when(registrarService.registrar(any(), anyString())).thenReturn(responseDto);
 
@@ -162,5 +166,46 @@ class PromotorControllerTest {
 
         // Verificamos que se llamó al servicio con el ID del Admin para el filtro
         verify(listarService).listarPromotor(idAdmin, 1, 10);
+    }
+
+
+    @Test
+    @DisplayName("GET /{id} -> Debe retornar el detalle completo del promotor")
+    void obtenerPorId_Exito() throws Exception {
+        // 1. GIVEN
+        Long idUsuario = 50L;
+
+        // Preparamos el DTO complejo
+        PromotorDetalleDto detalleMock = new PromotorDetalleDto(
+                idUsuario, "Juan Perez", "luis", "88888888", "asj@gmail.com", true,
+                10L, "20555555551", "Inmobiliaria Los Andes", // Datos Empresa
+                List.of(), // Lista proyectos vacía para simplificar
+                List.of()
+        );
+
+        when(obtenerDetalleService.listar(idUsuario)).thenReturn(detalleMock);
+
+        // 2. WHEN & THEN
+        mockMvc.perform(get(API_URL + "/{id}", idUsuario)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_ADMIN"))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.idUsuario").value(50))
+                .andExpect(jsonPath("$.razonSocial").value("Inmobiliaria Los Andes"));
+
+        verify(obtenerDetalleService).listar(idUsuario);
+    }
+
+    @Test
+    @DisplayName("GET /{id} -> Debe retornar 404 si no existe")
+    void obtenerPorId_NoEncontrado() throws Exception {
+        Long idNoExiste = 999L;
+
+        when(obtenerDetalleService.listar(idNoExiste))
+                .thenThrow(new RecursoNoEncontradoException("Promotor no encontrado"));
+
+        mockMvc.perform(get(API_URL + "/{id}", idNoExiste)
+                        .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_ADMIN"))))
+                .andExpect(status().isNotFound());
     }
 }

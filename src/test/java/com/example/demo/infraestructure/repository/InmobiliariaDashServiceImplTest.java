@@ -1,6 +1,7 @@
 package com.example.demo.infraestructure.repository;
 import com.example.demo.application.dto.PaginationResponseDTO;
 import com.example.demo.application.dto.queries.InmobiliariaDashBoardDto;
+import com.example.demo.application.dto.queries.InmobiliariaDetalleDto;
 import com.example.demo.domain.model.Inmobiliarias;
 import com.example.demo.domain.model.Proyectos;
 import com.example.demo.domain.repository.InmobilariaRepository;
@@ -14,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import java.security.SecureRandom;
+import java.util.Optional;
+
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -98,4 +101,49 @@ class InmobiliariaDashServiceImplTest {
         assertEquals(0, respuesta.totalElements());
         assertEquals(0, respuesta.totalPages());
     }
+
+    @Test
+    @DisplayName("Debe obtener el detalle completo de una inmobiliaria (Cabecera + Proyectos + Promotores)")
+    void obtenerDetalleInmobiliaria_Completo() {
+        // 1. GIVEN: Preparamos el escenario complejo
+        String adminId = "ADMIN_DETALLE";
+        String ruc = generarRucValido();
+        String nombreInmo = "Inmobiliaria Detalle SAC";
+
+        // A. Crear Inmobiliaria (Padre)
+        Inmobiliarias inmo = Inmobiliarias.crear(ruc, nombreInmo, adminId, null);
+        long idInmo = commandRepository.guardarInmobiliaria(inmo);
+
+        // B. Crear Proyecto (Hijo)
+        Proyectos proy = Proyectos.crear("Proyecto Detalle Alpha");
+        commandRepository.guardarProyectos(proy, idInmo);
+        // Nota: Si no tienes forma de saber el ID del proyecto, no podremos validar la asignación exacta,
+        // pero sí que aparezca en la lista.
+
+        // 2. WHEN: Ejecutamos la consulta de Detalle
+        Optional<InmobiliariaDetalleDto> resultado = dashboardRepository.listarInmobiliariaPorId(idInmo);
+
+        // 3. THEN: Validaciones
+        assertTrue(resultado.isPresent(), "Debe encontrar la inmobiliaria");
+        InmobiliariaDetalleDto detalle = resultado.get();
+
+        // Validar Cabecera
+        assertEquals(idInmo, detalle.idInmobiliaria());
+        assertEquals(ruc, detalle.ruc());
+        assertEquals(nombreInmo, detalle.razonSocial());
+
+        // Validar Listas
+        assertNotNull(detalle.proyectos()); // Lista de proyectos simple
+        assertFalse(detalle.proyectos().isEmpty(), "Debe tener al menos 1 proyecto");
+
+        // Validamos que el proyecto insertado esté ahí
+        boolean proyectoEncontrado = detalle.proyectos().stream()
+                .anyMatch(p -> p.nombreProyecto().equals("Proyecto Detalle Alpha"));
+        assertTrue(proyectoEncontrado, "El proyecto insertado debe aparecer en el detalle");
+
+        // Validar Lista Cruzada (Promotores Asignados)
+        // Como no asignamos promotores en este test, debe venir vacía pero no nula
+        assertNotNull(detalle.promotoresProyectos());
+    }
+
 }

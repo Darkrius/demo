@@ -1,6 +1,5 @@
 package com.example.demo.infraestructure.persistence.repositorys;
 
-
 import com.example.demo.application.dto.PaginationResponseDTO;
 import com.example.demo.application.dto.queries.InmobiliariaDashBoardDto;
 import com.example.demo.application.dto.queries.InmobiliariaDetalleDto;
@@ -10,7 +9,6 @@ import com.example.demo.domain.dto.InmobiliariaDashBoard;
 import com.example.demo.infraestructure.persistence.constants.StoredProcedureConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.autoconfigure.task.TaskExecutionProperties;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.SqlParameter;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
@@ -70,7 +68,7 @@ public class InmobiliariaDashServiceImpl implements InmobiliariaPortService {
                         new InmobiliariaDetalleDto.PromotoresProyectoDto(
                                 rs.getLong("idProyecto"),
                                 rs.getString("nombreProyecto"),
-                                rs.getLong("idPromotor"),
+                                rs.getLong("idUsuario"),
                                 rs.getString("nombrePromotor")
                         )
                 );
@@ -88,7 +86,6 @@ public class InmobiliariaDashServiceImpl implements InmobiliariaPortService {
 
             Map<String, Object> out = listarCall.execute(params);
 
-            //usamos el dto que esta en application
             @SuppressWarnings("unchecked")
             List<InmobiliariaDashBoard> rawList = (List<InmobiliariaDashBoard>) out.get("data");
 
@@ -164,7 +161,7 @@ public class InmobiliariaDashServiceImpl implements InmobiliariaPortService {
             return Optional.of(detalleDto);
 
         }catch (Exception e) {
-            log.error("INFRA ERROR: Falló SP_XXXXXX.", e);
+            log.error("INFRA ERROR: Falló SP_OBTENER_INMOBILIARIA_POR_ID.", e);
             throw new PersistenceException("Error al obtener detalle de la inmobiliaria.", e);
         }
 

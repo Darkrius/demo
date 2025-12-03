@@ -5,8 +5,11 @@ import com.example.demo.api.dto.request.InmobiliariaRequest;
 import com.example.demo.api.mapper.InmobiliriaApiMapper;
 import com.example.demo.application.dto.commands.RegistrarInmobiliariaCommand;
 import com.example.demo.application.dto.queries.InmobiliariaDashBoardDto;
+import com.example.demo.application.dto.queries.InmobiliariaDetalleDto;
 import com.example.demo.application.exceptions.EntidadDuplicadaException;
+import com.example.demo.application.exceptions.RecursoNoEncontradoException;
 import com.example.demo.application.interfaces.usecases.CrearInmobiliariaService;
+import com.example.demo.application.services.DetalleInmobiliariaServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,9 +28,11 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt; // <--- VITAL PARA JWT
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -50,6 +55,9 @@ class InmobiliariaControllerTest {
 
     @MockitoBean
     private InmobiliriaApiMapper mapper;
+
+    @MockitoBean
+    private DetalleInmobiliariaServiceImpl detalleInmobiliariaService;
 
     // -------------------------------------------------------------------
     // TEST 1: REGISTRO EXITOSO (ADMIN)
@@ -166,5 +174,65 @@ class InmobiliariaControllerTest {
                         .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_ADMIN"))
                                 .jwt(t -> t.subject("ADMIN"))))
                 .andExpect(status().isConflict()); // El Advice debe capturarlo
+    }
+
+    @Test
+    @DisplayName("GET /{id} -> Debe retornar detalle completo de Inmobiliaria con sus listas")
+    void obtenerPorId_Exito() throws Exception {
+        // 1. GIVEN
+        Long idInmo = 18L;
+
+        var proyectoDto = new InmobiliariaDetalleDto.ProyectosDto(
+                100L, "Residencial Sol"
+        );
+
+        var promotorDto = new InmobiliariaDetalleDto.PromotoresProyectoDto(
+                100L, "Residencial Sol", 50L, "Juan Perez"
+        );
+
+        // Preparamos el DTO Padre
+        InmobiliariaDetalleDto detalleMock = new InmobiliariaDetalleDto(
+                idInmo,
+                "20601234561",
+                "Inmobiliaria Los Andes",
+                List.of(proyectoDto),      // Lista de Proyectos
+                List.of(promotorDto)       // Lista de Promotores
+        );
+
+        // Configuramos el comportamiento del Mock
+        // (OJO: Usamos .listar() porque así lo tienes en tu Controller)
+        when(detalleInmobiliariaService.listar(idInmo)).thenReturn(detalleMock);
+
+        // 2. WHEN & THEN
+        mockMvc.perform(get("/api/v1/inmobiliarias/{id}", idInmo)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_ADMIN"))))
+                .andExpect(status().isOk())
+                // Validamos Cabecera
+                .andExpect(jsonPath("$.idInmobiliaria").value(18))
+                .andExpect(jsonPath("$.razonSocial").value("Inmobiliaria Los Andes"))
+                // Validamos Lista de Proyectos
+                .andExpect(jsonPath("$.proyectos[0].nombreProyecto").value("Residencial Sol"))
+                // Validamos Lista de Promotores
+                .andExpect(jsonPath("$.promotoresProyectos[0].nombrePromotor").value("Juan Perez"));
+
+        // Verificamos que se llamó al servicio correcto
+        verify(detalleInmobiliariaService).listar(idInmo);
+    }
+
+    // -------------------------------------------------------------------
+    // TEST: NO ENCONTRADO (404)
+    // -------------------------------------------------------------------
+    @Test
+    @DisplayName("GET /{id} -> Debe retornar 404 si no existe")
+    void obtenerPorId_NoEncontrado() throws Exception {
+        Long idNoExiste = 999L;
+
+        when(detalleInmobiliariaService.listar(idNoExiste))
+                .thenThrow(new RecursoNoEncontradoException("Inmobiliaria no encontrada"));
+
+        mockMvc.perform(get("/api/v1/inmobiliarias/{id}", idNoExiste)
+                        .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_ADMIN"))))
+                .andExpect(status().isNotFound());
     }
 }

@@ -69,7 +69,6 @@ public class PromotorController implements PromotorApi {
     public ResponseEntity<PromotorDetalleDto> obtenerPorId(Long idUsuario) {
         log.info("API: Solicitud de detalle para Promotor ID: [{}]", idUsuario);
 
-        // Llamamos al Caso de Uso (Este ya maneja la excepción 404 si no existe)
         PromotorDetalleDto detalle = obtenerDetalleService.listar(idUsuario);
 
         return ResponseEntity.ok(detalle);
