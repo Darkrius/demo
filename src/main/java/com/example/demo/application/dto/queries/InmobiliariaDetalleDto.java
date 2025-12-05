@@ -6,6 +6,7 @@ public record InmobiliariaDetalleDto(
         Long idInmobiliaria,
         String ruc,
         String razonSocial,
+        boolean estado,
         List<ProyectosDto> proyectos,
         List<PromotoresProyectoDto> promotoresProyectos
 ) {

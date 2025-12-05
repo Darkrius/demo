@@ -20,6 +20,10 @@ public class Inmobiliarias {
 
     private String logoUrl;
 
+
+
+    private LocalDateTime fechaEliminacion;
+
     public Inmobiliarias() {
     }
 
@@ -35,6 +39,7 @@ public class Inmobiliarias {
         this.estado = true;
         this.fechaCreacion = LocalDateTime.now();
         this.fechaModificacion = LocalDateTime.now();
+        this.fechaEliminacion = null;
 
     }
 
@@ -80,6 +85,10 @@ public class Inmobiliarias {
         return logoUrl;
     }
 
+    public LocalDateTime getFechaEliminacion() {
+        return fechaEliminacion;
+    }
+
     private void validarRuc(String ruc) {
         if (ruc == null) {
             throw new IllegalArgumentException("El RUC no puede ser nulo.");
@@ -101,6 +110,27 @@ public class Inmobiliarias {
     public void asignarId(Long id) {
         this.idInmobiliaria = id;
     }
+
+        public void eliminarInmobiliaria() {
+            this.estado = false;
+            this.fechaEliminacion = LocalDateTime.now();
+            this.fechaModificacion = LocalDateTime.now();
+        }
+
+        public void desactivarInmobiliaria() {
+            this.estado = false;
+            this.fechaModificacion = LocalDateTime.now();
+        }
+
+
+        //probablemente nunca lo usemos pero lo quiero mantener
+    public void activarInmobiliaria() {
+        this.estado = true;
+        this.fechaModificacion = LocalDateTime.now();
+        this.fechaEliminacion = null;
+    }
+
+
 
 
 

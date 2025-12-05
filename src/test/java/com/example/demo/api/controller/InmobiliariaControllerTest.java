@@ -191,16 +191,18 @@ class InmobiliariaControllerTest {
         );
 
         // Preparamos el DTO Padre
+        // --- CORRECCIÓN AQUÍ ---
         InmobiliariaDetalleDto detalleMock = new InmobiliariaDetalleDto(
                 idInmo,
                 "20601234561",
                 "Inmobiliaria Los Andes",
+                true, // <--- AGREGAR ESTE BOOLEAN (Estado)
                 List.of(proyectoDto),      // Lista de Proyectos
                 List.of(promotorDto)       // Lista de Promotores
         );
+        // -----------------------
 
         // Configuramos el comportamiento del Mock
-        // (OJO: Usamos .listar() porque así lo tienes en tu Controller)
         when(detalleInmobiliariaService.listar(idInmo)).thenReturn(detalleMock);
 
         // 2. WHEN & THEN
@@ -211,6 +213,7 @@ class InmobiliariaControllerTest {
                 // Validamos Cabecera
                 .andExpect(jsonPath("$.idInmobiliaria").value(18))
                 .andExpect(jsonPath("$.razonSocial").value("Inmobiliaria Los Andes"))
+                .andExpect(jsonPath("$.estado").value(true)) // Opcional: Validar que llegue el estado
                 // Validamos Lista de Proyectos
                 .andExpect(jsonPath("$.proyectos[0].nombreProyecto").value("Residencial Sol"))
                 // Validamos Lista de Promotores

@@ -55,7 +55,8 @@ public class InmobiliariaDashServiceImpl implements InmobiliariaPortService {
                         new  InmobiliariaHeaderTem(
                                 rs.getLong("idInmobiliaria"),
                                 rs.getString("ruc"),
-                                rs.getString("razonSocial")
+                                rs.getString("razonSocial"),
+                                rs.getBoolean("estado")
                         )
                 )
                 .returningResultSet("proyectos", (rs, rowNum) ->
@@ -154,6 +155,7 @@ public class InmobiliariaDashServiceImpl implements InmobiliariaPortService {
                     promotor.idInmobiliaria(),
                     promotor.ruc(),
                     promotor.razonSocial(),
+                    promotor.estado(),
                     proyectos,
                     promotoresProyectos
             );
@@ -169,7 +171,7 @@ public class InmobiliariaDashServiceImpl implements InmobiliariaPortService {
 
 
     private record InmobiliariaHeaderTem(
-            Long idInmobiliaria, String ruc, String razonSocial
+            Long idInmobiliaria, String ruc, String razonSocial, boolean estado
     ) {}
 
 }

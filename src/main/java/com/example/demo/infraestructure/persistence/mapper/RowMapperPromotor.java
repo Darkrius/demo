@@ -23,6 +23,7 @@ public class RowMapperPromotor implements RowMapper<PromotorEntity> {
                 .estado(rs.getBoolean("Estado"))
                 .fechaCreacion(rs.getTimestamp("fechaCreacion").toLocalDateTime())
                 .fechaModificacion(rs.getTimestamp("fechaModificacion").toLocalDateTime())
+                .fechaEliminacion(rs.getTimestamp("fechaEliminacion") != null ? rs.getTimestamp("fechaEliminacion").toLocalDateTime() : null)
                 .build();
     }
 }

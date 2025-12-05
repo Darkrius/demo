@@ -30,6 +30,8 @@ public class Promotor {
 
     private List<Long> proyectosAsignados = new ArrayList<>();
 
+    private LocalDateTime fechaEliminacion;
+
     public Promotor(DatosPersonales datos,
                      String idAdminEncargado,
                      Long idInmobiliaria,
@@ -57,6 +59,7 @@ public class Promotor {
         this.estado = true;
         this.fechaCreacion = LocalDateTime.now();
         this.fechaModificacion = LocalDateTime.now();
+        this.fechaEliminacion = null;
     }
 
     public static Promotor registrar(DatosPersonales datos,
@@ -138,9 +141,31 @@ public class Promotor {
         return proyectosAsignados;
     }
 
+
+    public LocalDateTime getFechaEliminacion() {
+        return fechaEliminacion;
+    }
+
     public String getNombreCompleto() {
         return nombres + " " + apellidos;
     }
 
+    public void darDeBaja() {
+        this.estado = false;
+        this.fechaModificacion = LocalDateTime.now();
+        this.fechaEliminacion = LocalDateTime.now();
+    }
+
+    public void iniciarVacaciones() {
+        this.estado = false;
+        this.fechaModificacion = LocalDateTime.now();
+    }
+
+    //probablemente nunca lo usemos pero lo quiero mantener
+    public void reincorporarPromotor() {
+        this.estado = true;
+        this.fechaModificacion = LocalDateTime.now();
+        this.fechaEliminacion = null;
+    }
 
 }

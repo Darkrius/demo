@@ -35,4 +35,6 @@ public class InmobiliariasEntity {
     private String idAdminCreador;
 
     private String logoUrl;
+
+    private LocalDateTime fechaEliminacion;
 }

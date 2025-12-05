@@ -20,6 +20,7 @@ public class RowMapperInmobiliaria implements RowMapper<InmobiliariasEntity> {
                 .fechaModificacion(rs.getTimestamp("fechaModificacion").toLocalDateTime())
                 .idAdminCreador(rs.getString("idAdminCreador"))
                 .logoUrl(rs.getString("logoUrl"))
+                .fechaEliminacion(rs.getTimestamp("fechaEliminacion") != null ? rs.getTimestamp("fechaEliminacion").toLocalDateTime() : null)
                 .build();
     }
 }

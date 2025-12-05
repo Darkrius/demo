@@ -44,4 +44,6 @@ public class PromotorEntity {
 
     private LocalDateTime fechaModificacion;
 
+    private LocalDateTime fechaEliminacion;
+
 }

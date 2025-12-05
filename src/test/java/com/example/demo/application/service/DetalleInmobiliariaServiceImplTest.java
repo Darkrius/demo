@@ -39,13 +39,16 @@ class DetalleInmobiliariaServiceImplTest {
         InmobiliariaDetalleDto.PromotoresProyectoDto promotor1 =
                 new InmobiliariaDetalleDto.PromotoresProyectoDto(1L, "Proyecto A", 10L, "Juan Pérez");
 
+        // --- CORRECCIÓN AQUÍ ---
         InmobiliariaDetalleDto dtoSimulado = new InmobiliariaDetalleDto(
                 idInmobiliaria,
                 "20123456789",
                 "Inmobiliaria Ejemplo",
+                true, // <--- AGREGAR ESTE BOOLEAN (Estado)
                 List.of(proyecto1),
                 List.of(promotor1)
         );
+        // -----------------------
 
         when(inmobiliariaPortService.listarInmobiliariaPorId(idInmobiliaria))
                 .thenReturn(Optional.of(dtoSimulado));
@@ -58,6 +61,7 @@ class DetalleInmobiliariaServiceImplTest {
         assertEquals(idInmobiliaria, resultado.idInmobiliaria());
         assertEquals("20123456789", resultado.ruc());
         assertEquals("Inmobiliaria Ejemplo", resultado.razonSocial());
+        assertTrue(resultado.estado()); // Puedes agregar esta validación extra
         assertEquals(1, resultado.proyectos().size());
         assertEquals("Proyecto A", resultado.proyectos().getFirst().nombreProyecto());
         assertEquals(1, resultado.promotoresProyectos().size());
