@@ -1,6 +1,7 @@
 package com.example.demo.api.controller.impl;
 
 import com.example.demo.api.controller.interfaces.InmobiliariaApi;
+import com.example.demo.api.dto.request.EditarInmobiliariaRequest;
 import com.example.demo.api.dto.request.InmobiliariaRequest;
 import com.example.demo.api.mapper.InmobiliriaApiMapper;
 import com.example.demo.application.dto.PaginationResponseDTO;
@@ -8,10 +9,8 @@ import com.example.demo.application.dto.commands.RegistrarInmobiliariaCommand;
 import com.example.demo.application.dto.DatosEmpresaDto;
 import com.example.demo.application.dto.queries.InmobiliariaDashBoardDto;
 import com.example.demo.application.dto.queries.InmobiliariaDetalleDto;
-import com.example.demo.application.interfaces.usecases.ConsultarRucService;
-import com.example.demo.application.interfaces.usecases.CrearInmobiliariaService;
-import com.example.demo.application.interfaces.usecases.DetalleInmobiliariaService;
-import com.example.demo.application.interfaces.usecases.ListarInmobiliaService;
+import com.example.demo.application.interfaces.usecases.*;
+import com.example.demo.domain.dto.EditarInmobiliaria;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,13 +28,15 @@ public class InmobiliariaController implements InmobiliariaApi {
     private final InmobiliriaApiMapper inmobiliriaApiMapper;
     private final ConsultarRucService consultarRucUseCase;
     private final ListarInmobiliaService listarService;
+    private final EditarInmobiliariaService editarInmobiliariaService;
     private final DetalleInmobiliariaService detalleInmobiliariaService;
 
-    public InmobiliariaController(CrearInmobiliariaService crearInmobiliariaService, InmobiliriaApiMapper inmobiliriaApiMapper, ConsultarRucService consultarRucUseCase, ListarInmobiliaService listarService, DetalleInmobiliariaService detalleInmobiliariaService) {
+    public InmobiliariaController(CrearInmobiliariaService crearInmobiliariaService, InmobiliriaApiMapper inmobiliriaApiMapper, ConsultarRucService consultarRucUseCase, ListarInmobiliaService listarService, EditarInmobiliariaService editarInmobiliariaService, DetalleInmobiliariaService detalleInmobiliariaService) {
         this.crearInmobiliariaService = crearInmobiliariaService;
         this.inmobiliriaApiMapper = inmobiliriaApiMapper;
         this.consultarRucUseCase = consultarRucUseCase;
         this.listarService = listarService;
+        this.editarInmobiliariaService = editarInmobiliariaService;
         this.detalleInmobiliariaService = detalleInmobiliariaService;
     }
 
@@ -83,6 +84,7 @@ public class InmobiliariaController implements InmobiliariaApi {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     public ResponseEntity<InmobiliariaDetalleDto> obtenerPorId(Long idInmobiliaria) {
         log.info("API: Solicitud de detalle para idInmobiliaria : [{}]", idInmobiliaria);
 
@@ -90,6 +92,19 @@ public class InmobiliariaController implements InmobiliariaApi {
 
         return ResponseEntity.ok(detalle);
 
+    }
+
+    @Override
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+    public ResponseEntity<InmobiliariaDetalleDto> editar(Long idInmobiliaria, EditarInmobiliariaRequest request) {
+
+        log.info("API: Solicitud de edición recibida para Inmobiliaria ID: [{}]", idInmobiliaria);
+
+        EditarInmobiliaria command = inmobiliriaApiMapper.toCommandEditar(request, idInmobiliaria);
+
+        InmobiliariaDetalleDto respuesta = editarInmobiliariaService.editar(command);
+
+        return ResponseEntity.ok(respuesta);
     }
 
 

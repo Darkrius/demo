@@ -1,5 +1,6 @@
 package com.example.demo.domain.repository;
 
+import com.example.demo.domain.dto.EditarInmobiliaria;
 import com.example.demo.domain.model.Inmobiliarias;
 import com.example.demo.domain.model.Proyectos;
 
@@ -14,4 +15,6 @@ public interface InmobilariaRepository {
     void guardarProyectos(Proyectos proyectos, Long idInmobiliaria);
 
     Optional<String> buscarRazonSocialPorId(Long idInmobiliaria);
+
+    void guardarEdicion(EditarInmobiliaria editarInmobiliaria);
 }

@@ -1,6 +1,9 @@
 package com.example.demo.infraestructure.persistence.repositorys;
 
+import com.example.demo.application.exceptions.EntidadDuplicadaException;
 import com.example.demo.application.exceptions.PersistenceException;
+import com.example.demo.application.exceptions.ReglasNegocioException;
+import com.example.demo.domain.dto.EditarInmobiliaria;
 import com.example.demo.domain.model.Inmobiliarias;
 import com.example.demo.domain.model.Proyectos;
 import com.example.demo.domain.repository.InmobilariaRepository;
@@ -8,9 +11,12 @@ import com.example.demo.infraestructure.persistence.constants.StoredProcedureCon
 import com.example.demo.infraestructure.persistence.entities.InmobiliariasEntity;
 import com.example.demo.infraestructure.persistence.entities.ProyectosEntity;
 import com.example.demo.infraestructure.persistence.mapper.MapperInmobiliaria;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.SqlOutParameter;
 import org.springframework.jdbc.core.SqlParameter;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Repository;
@@ -29,10 +35,12 @@ public class InmobiliariaRepositoryImpl implements InmobilariaRepository {
     private final SimpleJdbcCall guardarInmobiliaria;
     private final SimpleJdbcCall guardarProyectos;
     private final SimpleJdbcCall buscarRazonSocialPorId;
+    private final SimpleJdbcCall editarInmobiliariassp;
     private final MapperInmobiliaria mapperInmobiliaria;
+    private final ObjectMapper objectMapper;
 
 
-    public InmobiliariaRepositoryImpl(@Qualifier("principalJdbcTemplate") JdbcTemplate jdbcTemplate, MapperInmobiliaria mapperInmobiliaria) {
+    public InmobiliariaRepositoryImpl(@Qualifier("principalJdbcTemplate") JdbcTemplate jdbcTemplate, MapperInmobiliaria mapperInmobiliaria, ObjectMapper objectMapper) {
         this.guardarInmobiliaria = new SimpleJdbcCall(jdbcTemplate)
                 .withProcedureName(StoredProcedureConstants.SP_GUARDAR_INMOBILIARIA)
                 .declareParameters(
@@ -55,6 +63,18 @@ public class InmobiliariaRepositoryImpl implements InmobilariaRepository {
                 )
                 .returningResultSet("razonSocial", (rs, rowNum) -> rs.getString("razonSocial"));
         this.mapperInmobiliaria = mapperInmobiliaria;
+        this.editarInmobiliariassp = new SimpleJdbcCall(jdbcTemplate)
+                .withProcedureName(StoredProcedureConstants.SP_EDITAR_INMOBILIARIA)
+                .declareParameters(
+                        new SqlParameter("IdInmobiliaria", Types.BIGINT),
+                        new SqlParameter("Estado", Types.BIT),
+                        new SqlParameter("JsonNombresNuevos", Types.VARCHAR),
+                        new SqlParameter("JsonIdsEliminar", Types.VARCHAR),
+                        //parametros de salida
+                        new SqlOutParameter("cCodigoRespuesta", Types.VARCHAR),
+                        new SqlOutParameter("cMensajeRespuesta", Types.VARCHAR)
+                );
+        this.objectMapper = objectMapper;
     }
 
 
@@ -132,5 +152,57 @@ public class InmobiliariaRepositoryImpl implements InmobilariaRepository {
             log.error("INFRA ERROR: Falló SP_OBTENER_RAZON_SOCIAL.", e);
             return Optional.empty();
         }
+    }
+
+    @Override
+    public void guardarEdicion(EditarInmobiliaria editarInmobiliaria) {
+
+        log.info("INFRA: Iniciando edición de Inmobiliaria ID: [{}]", editarInmobiliaria.idInmobiliaria());
+
+        try {
+            String jsonNombres = objectMapper.writeValueAsString(editarInmobiliaria.nombreProyectos());
+            String jsonIds = objectMapper.writeValueAsString(editarInmobiliaria.idProyectos());
+
+            // 2. Preparar parámetros del SP
+            Map<String, Object> parametros = new HashMap<>();
+            parametros.put("IdInmobiliaria", editarInmobiliaria.idInmobiliaria());
+            parametros.put("Estado", editarInmobiliaria.estado());
+            parametros.put("JsonNombresNuevos", jsonNombres);
+            parametros.put("JsonIdsEliminar", jsonIds);
+
+            Map<String, Object> out = editarInmobiliariassp.execute(parametros);
+
+            String codigo = (String) out.get("cCodigoRespuesta");
+            String mensaje = (String) out.get("cMensajeRespuesta");
+
+            if (!"00".equals(codigo)) {
+                log.warn("INFRA WARN: Regla de Negocio detectada en BD. Código: [{}], Mensaje: [{}]", codigo, mensaje);
+
+                // 1. Detectar duplicados
+                if (mensaje != null && mensaje.toLowerCase().contains("ya existe")) {
+                    throw new EntidadDuplicadaException(mensaje);
+                }
+
+                // 2. Detectar error de negocio genérico (ej. promotores activos)
+                throw new ReglasNegocioException(mensaje);
+            }
+
+            log.info("INFRA: Edición exitosa en base de datos.");
+
+        } catch (JsonProcessingException e) {
+            log.error("INFRA ERROR: Fallo al serializar JSON.", e);
+            throw new PersistenceException("Error interno al procesar datos.", e);
+
+        } catch (Exception e) {
+            // Dejar pasar las excepciones que nosotros lanzamos arriba
+            if (e instanceof ReglasNegocioException || e instanceof EntidadDuplicadaException) {
+                throw e;
+            }
+
+            log.error("INFRA ERROR: Fallo crítico en BD para ID [{}].", editarInmobiliaria.idInmobiliaria(), e);
+            throw new PersistenceException("Error inesperado en base de datos: " + e.getMessage(), e);
+        }
+
+
     }
 }

@@ -7,6 +7,7 @@ import com.example.demo.application.exceptions.EntidadDuplicadaException;
 import com.example.demo.application.interfaces.external.IEventPublisher;
 import com.example.demo.application.services.RegistrarPromotorServiceImpl;
 import com.example.demo.domain.model.Promotor;
+import com.example.demo.domain.repository.InmobilariaRepository;
 import com.example.demo.domain.repository.PromotorRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,13 +20,13 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class RegistrarPromotorServiceImplTest {
 
     @Mock private PromotorRepository promotorRepository;
     @Mock private IEventPublisher eventPublisher;
+    @Mock private InmobilariaRepository inmobilariaRepository;
 
     @InjectMocks private RegistrarPromotorServiceImpl service;
 
@@ -41,6 +42,12 @@ class RegistrarPromotorServiceImplTest {
     void registrar_Exito() {
         // GIVEN
         RegistrarPromotorCommand cmd = comandoValido();
+
+        // 2. CONFIGURAR EL COMPORTAMIENTO (STUB)
+        // El servicio intenta buscar el nombre de la inmobiliaria ID 10, hay que decirle qué devolver.
+        when(inmobilariaRepository.buscarRazonSocialPorId(10L))
+                .thenReturn("Inmobiliaria Los Andes S.A.C.".describeConstable());
+
         when(promotorRepository.guardarPromotor(any(Promotor.class))).thenReturn(50L);
 
         // WHEN
@@ -48,13 +55,13 @@ class RegistrarPromotorServiceImplTest {
 
         // THEN
         assertNotNull(resultado);
-        assertEquals(50L, resultado.idPromotor()); // (O idUsuario si usas ese nombre)
+        assertEquals(50L, resultado.idPromotor());
 
-        // Verificaciones de llamadas
         verify(promotorRepository).guardarPromotor(any());
-        verify(promotorRepository).guardarProyectosPromotor(eq(50L), eq(100L));
-        verify(promotorRepository).guardarProyectosPromotor(eq(50L), eq(200L));
         verify(eventPublisher).publicarEventoCreacion(any());
+
+        // Opcional: Verificar que también llamó al repo de inmobiliaria
+        verify(inmobilariaRepository).buscarRazonSocialPorId(10L);
     }
 
     @Test

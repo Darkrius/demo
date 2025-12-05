@@ -1,8 +1,10 @@
 package com.example.demo.api.mapper;
 
+import com.example.demo.api.dto.request.EditarInmobiliariaRequest;
 import com.example.demo.api.dto.request.InmobiliariaRequest;
 import com.example.demo.application.dto.UploadFileCommand;
 import com.example.demo.application.dto.commands.RegistrarInmobiliariaCommand;
+import com.example.demo.domain.dto.EditarInmobiliaria;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -38,6 +40,10 @@ public interface InmobiliriaApiMapper {
             throw new RuntimeException("Error al leer el archivo subido en el mapper", e);
         }
     }
+
+
+    EditarInmobiliaria toCommandEditar(EditarInmobiliariaRequest request, Long idInmobiliaria);
+
 
 
 

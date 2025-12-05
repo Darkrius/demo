@@ -1,6 +1,7 @@
 package com.example.demo.api.controller;
 
 
+import com.example.demo.api.dto.request.EditarInmobiliariaRequest;
 import com.example.demo.api.dto.request.InmobiliariaRequest;
 import com.example.demo.api.mapper.InmobiliriaApiMapper;
 import com.example.demo.application.dto.commands.RegistrarInmobiliariaCommand;
@@ -9,7 +10,9 @@ import com.example.demo.application.dto.queries.InmobiliariaDetalleDto;
 import com.example.demo.application.exceptions.EntidadDuplicadaException;
 import com.example.demo.application.exceptions.RecursoNoEncontradoException;
 import com.example.demo.application.interfaces.usecases.CrearInmobiliariaService;
+import com.example.demo.application.interfaces.usecases.EditarInmobiliariaService;
 import com.example.demo.application.services.DetalleInmobiliariaServiceImpl;
+import com.example.demo.domain.dto.EditarInmobiliaria;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -58,6 +61,9 @@ class InmobiliariaControllerTest {
 
     @MockitoBean
     private DetalleInmobiliariaServiceImpl detalleInmobiliariaService;
+
+    @MockitoBean
+    private EditarInmobiliariaService editarInmobiliariaService;
 
     // -------------------------------------------------------------------
     // TEST 1: REGISTRO EXITOSO (ADMIN)
@@ -237,5 +243,180 @@ class InmobiliariaControllerTest {
         mockMvc.perform(get("/api/v1/inmobiliarias/{id}", idNoExiste)
                         .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_ADMIN"))))
                 .andExpect(status().isNotFound());
+    }
+
+
+    @Test
+    @DisplayName("PATCH /{id} -> 200 OK: Edita y devuelve objeto actualizado")
+    void editar_Exito() throws Exception {
+        // 1. GIVEN
+        Long idInmo = 10L;
+
+        // A. Request JSON (Lo que envía el usuario)
+        EditarInmobiliariaRequest request = new EditarInmobiliariaRequest(
+                true,
+                List.of("Torre Nueva"),
+                List.of(5L)
+        );
+
+        // B. Command (Lo que devuelve el Mapper)
+        EditarInmobiliaria command = new EditarInmobiliaria(idInmo, true, List.of("Torre Nueva"), List.of(5L));
+
+        // C. Response DTO (Lo que devuelve el Servicio tras editar y recargar)
+        // Usamos un objeto dummy para validar que el controller lo pasa tal cual
+        InmobiliariaDetalleDto respuestaEsperada = new InmobiliariaDetalleDto(
+                idInmo, "20100000000", "Inmo Editada", true,
+                List.of(new InmobiliariaDetalleDto.ProyectosDto(500L, "Torre Nueva")), // Proyecto nuevo generado
+                List.of()
+        );
+
+        // Configuramos Mocks
+        when(mapper.toCommandEditar(any(EditarInmobiliariaRequest.class), eq(idInmo))).thenReturn(command);
+        when(editarInmobiliariaService.editar(any(EditarInmobiliaria.class))).thenReturn(respuestaEsperada);
+
+        // 2. WHEN & THEN
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch("/api/v1/inmobiliarias/{id}", idInmo)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)) // Convertimos DTO a JSON string
+                        .with(csrf()) // Seguridad CSRF
+                        .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_ADMIN")))) // Rol ADMIN requerido
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.idInmobiliaria").value(idInmo))
+                .andExpect(jsonPath("$.razonSocial").value("Inmo Editada"))
+                .andExpect(jsonPath("$.proyectos[0].idProyecto").value(500))
+                .andExpect(jsonPath("$.proyectos[0].nombreProyecto").value("Torre Nueva"));
+
+        // Verificaciones
+        verify(mapper).toCommandEditar(any(), eq(idInmo));
+        verify(editarInmobiliariaService).editar(any());
+    }
+
+    // -------------------------------------------------------------------
+    // TEST 6: EDICIÓN PROHIBIDA (ROL USUARIO)
+    // -------------------------------------------------------------------
+    @Test
+    @DisplayName("PATCH /{id} -> 403 Forbidden: Usuario normal no puede editar")
+    void editar_SinPermisos() throws Exception {
+        Long idInmo = 10L;
+        EditarInmobiliariaRequest request = new EditarInmobiliariaRequest(true, null, null);
+
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch("/api/v1/inmobiliarias/{id}", idInmo)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request))
+                        .with(csrf())
+                        // SIMULAMOS USUARIO SIN PERMISOS (SCOPE_USER)
+                        .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_USER"))))
+                .andExpect(status().isForbidden());
+    }
+
+    // -------------------------------------------------------------------
+    // TEST 7: EDICIÓN FALLIDA (REGLA DE NEGOCIO)
+    // -------------------------------------------------------------------
+    @Test
+    @DisplayName("PATCH /{id} -> 409 Conflict: Cuando se intenta duplicar un proyecto")
+    void editar_Duplicado() throws Exception {
+        // GIVEN
+        Long idInmo = 10L;
+        EditarInmobiliariaRequest request = new EditarInmobiliariaRequest(true, List.of("Torre A"), null);
+
+        // Mocks
+        when(mapper.toCommandEditar(any(), eq(idInmo)))
+                .thenReturn(new EditarInmobiliaria(idInmo, true, List.of("Torre A"), null));
+
+        when(editarInmobiliariaService.editar(any()))
+                .thenThrow(new EntidadDuplicadaException("El proyecto 'Torre A' ya existe en esta inmobiliaria"));
+
+        // WHEN & THEN
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch("/api/v1/inmobiliarias/{id}", idInmo)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request))
+                        .with(csrf())
+                        .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_ADMIN"))))
+                .andExpect(status().isConflict()) // HTTP 409
+                // CORRECCIÓN: Validamos tus campos personalizados
+                .andExpect(jsonPath("$.codigo").value("409"))
+                .andExpect(jsonPath("$.mensaje").value("El proyecto 'Torre A' ya existe en esta inmobiliaria"));
+    }
+
+    // -------------------------------------------------------------------
+    // TEST 9: NO ENCONTRADO (404) - ID INEXISTENTE
+    // -------------------------------------------------------------------
+    @Test
+    @DisplayName("PATCH /{id} -> 404 Not Found: Cuando el ID no existe")
+    void editar_NoEncontrado() throws Exception {
+        // GIVEN
+        Long idFantasma = 9999L;
+        EditarInmobiliariaRequest request = new EditarInmobiliariaRequest(true, null, null);
+
+        when(mapper.toCommandEditar(any(), eq(idFantasma)))
+                .thenReturn(new EditarInmobiliaria(idFantasma, true, null, null));
+
+        when(editarInmobiliariaService.editar(any()))
+                .thenThrow(new RecursoNoEncontradoException("No se encontró la inmobiliaria con ID " + idFantasma));
+
+        // WHEN & THEN
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch("/api/v1/inmobiliarias/{id}", idFantasma)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request))
+                        .with(csrf())
+                        .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_ADMIN"))))
+                .andExpect(status().isNotFound()) // HTTP 404
+                // CORRECCIÓN: Validamos tus campos personalizados
+                .andExpect(jsonPath("$.codigo").value("404"))
+                .andExpect(jsonPath("$.mensaje").value("No se encontró la inmobiliaria con ID 9999"));
+    }
+
+    // -------------------------------------------------------------------
+    // TEST 10: ERROR INTERNO (500) - FALLO BASE DE DATOS
+    // -------------------------------------------------------------------
+    @Test
+    @DisplayName("PATCH /{id} -> 500 Internal Server Error: Fallo inesperado")
+    void editar_ErrorInterno() throws Exception {
+        // GIVEN
+        Long idInmo = 10L;
+        EditarInmobiliariaRequest request = new EditarInmobiliariaRequest(true, null, null);
+
+        when(mapper.toCommandEditar(any(), eq(idInmo)))
+                .thenReturn(new EditarInmobiliaria(idInmo, true, null, null));
+
+        when(editarInmobiliariaService.editar(any()))
+                .thenThrow(new RuntimeException("Error de conexión con base de datos"));
+
+        // WHEN & THEN
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch("/api/v1/inmobiliarias/{id}", idInmo)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request))
+                        .with(csrf())
+                        .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_ADMIN"))))
+                .andExpect(status().isInternalServerError()) // HTTP 500
+                // CORRECCIÓN: Validamos tus campos personalizados
+                .andExpect(jsonPath("$.codigo").value("500"))
+                // Nota: Tu GlobalHandler probablemente oculta el mensaje real "Error conexión..." y pone uno genérico
+                .andExpect(jsonPath("$.mensaje").value("Ocurrió un error interno al procesar la solicitud."));
+    }
+
+    // -------------------------------------------------------------------
+    // TEST 7: EDICIÓN FALLIDA (REGLA DE NEGOCIO - 400)
+    // -------------------------------------------------------------------
+    @Test
+    @DisplayName("PATCH /{id} -> 400 Bad Request: Error de regla de negocio")
+    void editar_ErrorReglaNegocio() throws Exception {
+        Long idInmo = 10L;
+        EditarInmobiliariaRequest request = new EditarInmobiliariaRequest(false, null, null);
+
+        when(mapper.toCommandEditar(any(), any())).thenReturn(new EditarInmobiliaria(idInmo, false, null, null));
+
+        when(editarInmobiliariaService.editar(any()))
+                .thenThrow(new com.example.demo.application.exceptions.ReglasNegocioException("No se puede desactivar con promotores activos"));
+
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch("/api/v1/inmobiliarias/{id}", idInmo)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request))
+                        .with(csrf())
+                        .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_ADMIN"))))
+                .andExpect(status().isBadRequest()) // HTTP 400
+                // CORRECCIÓN: Validamos tus campos personalizados
+                .andExpect(jsonPath("$.codigo").value("400"))
+                .andExpect(jsonPath("$.mensaje").value("No se puede desactivar con promotores activos"));
     }
 }

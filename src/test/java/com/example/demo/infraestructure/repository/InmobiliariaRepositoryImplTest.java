@@ -15,6 +15,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import java.security.SecureRandom;
 import org.springframework.transaction.annotation.Transactional;
+import com.example.demo.domain.dto.EditarInmobiliaria;
+import com.example.demo.application.exceptions.EntidadDuplicadaException;
+import java.util.Collections;
+import java.util.List;
 
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -94,6 +98,47 @@ class InmobiliariaRepositoryImplTest {
         assertThrows(PersistenceException.class, () -> repository.guardarInmobiliaria(inmo2));
     }
 
+    @Test
+    @DisplayName("Debe editar Inmobiliaria: Agregar nuevos proyectos y cambiar estado")
+    void guardarEdicion_AgregaryCambiarEstado() {
+        // 1. GIVEN: Creamos una inmobiliaria base
+        String ruc = generarRucValido();
+        Inmobiliarias padre = Inmobiliarias.crear(ruc, "Inmo Editar " + ruc, "ADMIN", null);
+        Long idPadre = repository.guardarInmobiliaria(padre);
+
+        // Definimos los cambios: Activamos y agregamos 2 torres nuevas
+        List<String> proyectosNuevos = List.of("Torre Alpha", "Torre Beta");
+        List<Long> idsEliminar = Collections.emptyList(); // No eliminamos nada por ahora
+
+        EditarInmobiliaria cmd = new EditarInmobiliaria(idPadre, true, proyectosNuevos, idsEliminar);
+
+        // 2. WHEN & THEN: Ejecutamos la edición
+        // Al ser un test de integración, si el SP falla lanzará excepción y el test fallará.
+        assertDoesNotThrow(() -> repository.guardarEdicion(cmd));
+
+        System.out.println("Test Exitoso: Edición realizada para ID: " + idPadre);
+    }
+
+    @Test
+    @DisplayName("Debe lanzar EntidadDuplicadaException si al editar agregamos un nombre existente")
+    void guardarEdicion_Fallo_Duplicado() {
+        // 1. GIVEN: Inmobiliaria con un proyecto ya existente
+        String ruc = generarRucValido();
+        Inmobiliarias padre = Inmobiliarias.crear(ruc, "Inmo Duplicado " + ruc, "ADMIN", null);
+        Long idPadre = repository.guardarInmobiliaria(padre);
+
+        // Guardamos manualmente el proyecto "Torre X"
+        repository.guardarProyectos(Proyectos.crear("Torre X"), idPadre);
+
+        // 2. WHEN: Intentamos editar agregando "Torre X" DE NUEVO
+        List<String> proyectosNuevos = List.of("Torre Y", "Torre X"); // "Torre X" ya existe
+        EditarInmobiliaria cmd = new EditarInmobiliaria(idPadre, true, proyectosNuevos, Collections.emptyList());
+
+        // 3. THEN: Esperamos que el SP detecte el duplicado y el Repo lance nuestra excepción
+        assertThrows(EntidadDuplicadaException.class, () -> repository.guardarEdicion(cmd));
+
+        System.out.println("Test Exitoso: Se detectó duplicado correctamente.");
+    }
 
 
 

@@ -1,6 +1,7 @@
 package com.example.demo.api.controller.interfaces;
 
 
+import com.example.demo.api.dto.request.EditarInmobiliariaRequest;
 import com.example.demo.api.dto.request.InmobiliariaRequest;
 import com.example.demo.application.dto.PaginationResponseDTO;
 import com.example.demo.application.dto.DatosEmpresaDto;
@@ -75,6 +76,25 @@ public interface InmobiliariaApi {
     ResponseEntity<InmobiliariaDetalleDto> obtenerPorId(
             @Parameter(description = "ID unico de la inmobiliaria", required = true, example = "50")
             @PathVariable("idInmobiliaria") Long idInmobiliaria
+    );
+
+
+    @Operation(summary = "Editar Inmobiliaria (Parcial)", description = "Permite actualizar el estado y/o gestionar proyectos. Los campos nulos serán ignorados.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Edición procesada correctamente"),
+            @ApiResponse(responseCode = "400", description = "Error de regla de negocio", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Inmobiliaria no encontrada", content = @Content),
+            @ApiResponse(responseCode = "409", description = "Conflicto de datos", content = @Content),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content)
+    })
+    // CAMBIO: @PutMapping -> @PatchMapping
+    @PatchMapping(value = "/{idInmobiliaria}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<InmobiliariaDetalleDto> editar(
+            @Parameter(description = "ID único de la inmobiliaria", required = true, example = "10")
+            @PathVariable Long idInmobiliaria,
+
+            @Parameter(description = "Datos a actualizar. Enviar solo lo que se desea cambiar.", required = true)
+            @RequestBody @Valid EditarInmobiliariaRequest request
     );
 
 
